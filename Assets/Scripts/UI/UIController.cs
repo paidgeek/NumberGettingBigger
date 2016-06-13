@@ -7,7 +7,17 @@ public class UIController : MonoBehaviour
 
     private void Start()
     {
-        GameController.instance.onNumberChanged.AddListener(OnNumberChanged);
+        var gc = GameController.instance;
+
+        gc.onNumberChanged.AddListener(OnNumberChanged);
+        var sources = new ObservableList("sources");
+
+        for (var i = 0; i < gc.sources.Length; i++) {
+            var s = gc.sources[i];
+            sources.Add(s);
+        }
+
+        m_DataBindContext["sources"] = sources;
     }
 
     private void OnNumberChanged(Huge number)
