@@ -16,7 +16,14 @@ public struct Huge
 
     public double firstDigits
     {
-        get { return value / Math.Pow(10.0, power); }
+        get
+        {
+            if (power >= 3) {
+                return value / Math.Pow(10.0, power);
+            }
+
+            return value;
+        }
     }
 
     public override string ToString()

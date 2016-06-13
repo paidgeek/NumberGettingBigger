@@ -229,7 +229,7 @@ namespace GooglePlayGames.Editor
 #if UNITY_IOS || UNITY_IPHONE
         /// <summary>
         /// Updates the generated pbxproj to reduce manual work required by developers. Currently
-        /// this adds the '-fobjc-arc' flag for the Play Games ObjC source file.
+        /// this adds the '-fobjc-arc' flag for the Play Games ObjC viewModel file.
         /// </summary>
         /// <param name="pbxprojPath">Pbxproj path.</param>
         private static void UpdateGeneratedPbxproj(string pbxprojPath)

@@ -26,4 +26,10 @@ public static class Util
          return false;
 #endif
     }
+
+    public static double PrettyNumber(double x)
+    {
+        var log = Math.Floor(Math.Log10(x));
+        return Math.Floor(Math.Floor(x / Math.Pow(10.0, log - 1)) * Math.Pow(10, log - 1));
+    }
 }

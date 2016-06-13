@@ -1,6 +1,9 @@
-﻿public class Source
+﻿using System;
+
+public class Source
 {
-    public const int Count = 20;
+    public const int Count = 50;
+    private const double Multiplier = 1.15;
 
     public Source(int index, int level)
     {
@@ -11,13 +14,36 @@
     public int index { get; set; }
     public int level { get; set; }
 
+    public Huge baseCost {
+        get
+        {
+            var n = Math.Pow(5, index);
+
+            return Util.PrettyNumber(n);
+        }
+    }
+
+    public Huge baseRate
+    {
+        get
+        {
+            var n = Math.Pow(3, index);
+
+            return Util.PrettyNumber(n);
+        }
+    }
+
     public Huge rate
     {
-        get { return index * 3 + level; }
+        get { return baseRate * level; }
     }
 
     public Huge cost
     {
-        get { return level * 2; }
+        get
+        {
+            var cost = baseCost * Math.Pow(Multiplier, level);
+            return Util.PrettyNumber(cost);
+        }
     }
 }

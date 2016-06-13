@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
@@ -864,7 +864,7 @@ namespace UnityEditor.XCodeEditorChartboost
 //		}
 //		
 //		/**
-//		 * Returns the parent group for the group or file with the source file
+//		 * Returns the parent group for the group or file with the viewModel file
 //		 */
 //		public PBXGroup GetGroupWithSourceFile( XCSourceFile sourceFile )
 //		{

@@ -188,7 +188,7 @@ public delegate void ConflictCallback(IConflictResolver resolver, ISavedGameMeta
     public interface ISavedGameClient
     {
         /// <summary>
-        /// Opens the file with the indicated name and data source. If the file has an outstanding
+        /// Opens the file with the indicated name and data viewModel. If the file has an outstanding
         /// conflict, it will be resolved using the specified conflict resolution strategy. The
         /// metadata returned by this method will be "Open" - it can be used as a parameter for
         /// <see cref="CommitUpdate"/> and <see cref="ResolveConflictByChoosingMetadata"/>.
@@ -196,7 +196,7 @@ public delegate void ConflictCallback(IConflictResolver resolver, ISavedGameMeta
         /// <param name="filename">The name of the file to open. Filenames must consist of
         /// only non-URL reserved characters (i.e. a-z, A-Z, 0-9, or the symbols "-", ".", "_", or "~")
         /// be between 1 and 100 characters in length (inclusive).</param>
-        /// <param name="source">The data source to use. <see cref="DataSource"/> for a description
+        /// <param name="source">The data viewModel to use. <see cref="DataSource"/> for a description
         /// of the available options here.</param>
         /// <param name="resolutionStrategy">The conflict resolution that should be used if any
         /// conflicts are encountered while opening the file.
@@ -209,7 +209,7 @@ public delegate void ConflictCallback(IConflictResolver resolver, ISavedGameMeta
                                              Action<SavedGameRequestStatus, ISavedGameMetadata> callback);
 
         /// <summary>
-        /// Opens the file with the indicated name and data source. If there is a conflict that
+        /// Opens the file with the indicated name and data viewModel. If there is a conflict that
         /// requires resolution, it will be resolved manually using the passed conflict callback. Once
         /// all pending conflicts are resolved, the completed callback will be invoked with the
         /// retrieved data. In the event of an error, the completed callback will be invoked with the
@@ -218,7 +218,7 @@ public delegate void ConflictCallback(IConflictResolver resolver, ISavedGameMeta
         /// <param name="filename">The name of the file to open. Filenames must consist of
         /// only non-URL reserved characters (i.e. a-z, A-Z, 0-9, or the symbols "-", ".", "_", or "~")
         /// be between 1 and 100 characters in length (inclusive).</param>
-        /// <param name="source">The data source to use. <see cref="DataSource"/> for a description
+        /// <param name="source">The data viewModel to use. <see cref="DataSource"/> for a description
         /// of the available options here.</param>
         /// <param name="prefetchDataOnConflict">If set to <c>true</c>, the data for the two
         /// conflicting files will be automatically retrieved and passed as parameters in
@@ -307,7 +307,7 @@ public delegate void ConflictCallback(IConflictResolver resolver, ISavedGameMeta
         /// not open, and must be opened before they can be used for writes or binary data reads. The
         /// callback will always occur on the game thread.
         /// </summary>
-        /// <param name="source">The data source to use. <see cref="DataSource"/> for a description
+        /// <param name="source">The data viewModel to use. <see cref="DataSource"/> for a description
         /// of the available options here.</param>
         /// <param name="callback">The callback that is invoked when this operation finishes.
         /// The returned metadata will only be non-empty if the commit succeeded. If an error is

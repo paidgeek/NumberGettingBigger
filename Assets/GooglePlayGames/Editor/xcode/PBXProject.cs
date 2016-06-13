@@ -1,5 +1,5 @@
 ﻿/// <summary>
-/// Xcode PBX support library.  This is from the Unity open source.
+/// Xcode PBX support library.  This is from the Unity open viewModel.
 /// https://bitbucket.org/Unity-Technologies/xcodeapi/overview
 /// </summary>
 ///
@@ -56,7 +56,7 @@ namespace GooglePlayGames.xcode
 	public enum PBXSourceTree
 	{
 		Absolute,   // The path is absolute
-		Source,     // The path is relative to the source folder
+		Source,     // The path is relative to the viewModel folder
 		Group,      // The path is relative to the folder it's in. This enum is used only internally,
 		// do not use it as function parameter
 		Build,      // The path is relative to the build products folder
@@ -184,7 +184,7 @@ namespace GooglePlayGames.xcode
 			return groups[project.project.mainGroup];
 		}
 
-		/// Returns the source group identified by sourceGroup. If sourceGroup is empty or null,
+		/// Returns the viewModel group identified by sourceGroup. If sourceGroup is empty or null,
 		/// root group is returned. If no group is found, null is returned.
 		PBXGroup GroupsGetByProjectPath(string sourceGroup)
 		{
@@ -692,7 +692,7 @@ namespace GooglePlayGames.xcode
 			return null;
 		}
 
-		/// Creates source group identified by sourceGroup, if needed, and returns it.
+		/// Creates viewModel group identified by sourceGroup, if needed, and returns it.
 		/// If sourceGroup is empty or null, root group is returned
 		private PBXGroup CreateSourceGroup(string sourceGroup)
 		{

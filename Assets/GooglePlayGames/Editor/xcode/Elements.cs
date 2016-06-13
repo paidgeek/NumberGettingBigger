@@ -1,5 +1,5 @@
 ﻿/// <summary>
-/// Xcode PBX support library.  This is from the Unity open source.
+/// Xcode PBX support library.  This is from the Unity open viewModel.
 /// https://bitbucket.org/Unity-Technologies/xcodeapi/overview
 /// </summary>
 ///

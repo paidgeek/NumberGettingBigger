@@ -45,6 +45,11 @@ public class BindText : MonoBehaviour, IBindable
             var target = m.Value.Substring(2, m.Value.Length - 4)
                           .Split(':');
             var key = target[0];
+
+            if (!context.ContainsKey(key)) {
+                return m.Value;
+            }
+
             var val = context[key];
 
             if (target.Length == 2 && context[key] is IFormattable) {

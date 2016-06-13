@@ -93,7 +93,7 @@ namespace GooglePlayGames.BasicApi.Quests
         /// <summary>
         /// Retrieves the quest with the indicated ID (if any).
         /// </summary>
-        /// <param name="source">The source of the quest (i.e. whether we can return stale cached
+        /// <param name="source">The viewModel of the quest (i.e. whether we can return stale cached
         /// values).</param>
         /// <param name="questId">The ID of the Quest.</param>
         /// <param name="callback">The callback for the results. The passed quest will be non-null if
@@ -103,7 +103,7 @@ namespace GooglePlayGames.BasicApi.Quests
         /// <summary>
         /// Fetches all quests that are in one of the states indicated by the passed flags.
         /// </summary>
-        /// <param name="source">The source of the quest (i.e. whether we can return stale cached
+        /// <param name="source">The viewModel of the quest (i.e. whether we can return stale cached
         /// values).
         /// <param name="flags">The bitwise 'or' of all of states we wish to match against.</param>
         /// <param name="callback">A callback containing the status of the callback, and the matching

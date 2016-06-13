@@ -12,7 +12,7 @@
     "Version": "Version",
     "Settings": "Settings",
     "Shop": "Shop",
-    "Share Message": "YAY! I scored {0} in #SimpleGameTemplate! Can you beat my score? {1}",
-    "Tap to play": "Tap to play"
+    "Tap to play": "Tap to play",
+    "ShareNumber" :  "Check out my big number! {0}"
   }
 }

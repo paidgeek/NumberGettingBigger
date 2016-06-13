@@ -33,7 +33,7 @@ namespace GooglePlayGames.BasicApi.Events
         /// <summary>
         /// Fetches all events defined for this game.
         /// </summary>
-        /// <param name="source">The source of the event (i.e. whether we can return stale cached
+        /// <param name="source">The viewModel of the event (i.e. whether we can return stale cached
         /// values).</param>
         /// <param name="callback">A callback for the results of the request. The passed list will only
         /// be non-empty if the request succeeded. This callback will be invoked on the game thread.
@@ -43,7 +43,7 @@ namespace GooglePlayGames.BasicApi.Events
         /// <summary>
         /// Fetchs the event with the specified ID.
         /// </summary>
-        /// <param name="source">The source of the event (i.e. whether we can return stale cached
+        /// <param name="source">The viewModel of the event (i.e. whether we can return stale cached
         /// values).</param>
         /// <param name="eventId">The ID of the event.</param>
         /// <param name="callback">A callback for the result of the event. If the request failed, the

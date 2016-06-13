@@ -8,6 +8,7 @@ public class GameController : Singleton<GameController>
     private int m_Coins;
     private Huge m_Number;
     private Source[] m_Sources;
+    private Huge m_Rate;
 
     public Huge number
     {
@@ -20,7 +21,7 @@ public class GameController : Singleton<GameController>
     }
     public Huge rate
     {
-        get { return 1.0; }
+        get { return m_Rate; }
     }
     public Source[] sources
     {
@@ -34,6 +35,7 @@ public class GameController : Singleton<GameController>
         m_EventDispatcher = FindObjectOfType<EventDispatcher>();
         onNumberChanged = new BasicEvent<Huge>();
 
+        m_Rate = 1.0;
         LoadData();
     }
 
@@ -45,6 +47,43 @@ public class GameController : Singleton<GameController>
         for (int i = 0; i < Source.Count; i++) {
             m_Sources[i] = new Source(i, PlayerPrefs.GetInt("SourceLevel" + i, 0));
         }
+
+        UpdateRate();
+    }
+
+    private void SaveData()
+    {
+        /*
+        PlayerPrefs.SetString("Number", number.value.ToString(new CultureInfo("en-GB")));
+
+        for (var i = 0; i < m_Sources.Length; i++) {
+            var s = m_Sources[i];
+            PlayerPrefs.SetInt("SourceLevel" + i, s.level);
+        }
+
+        PlayerPrefs.Save();
+        */
+    }
+
+    private void UpdateRate()
+    {
+        m_Rate = 1.0;
+
+        for (int i = 0; i < m_Sources.Length; i++) {
+            m_Rate += m_Sources[i].rate;
+        }
+    }
+
+    public bool CanExchange(Source source)
+    {
+        return number >= source.cost;
+    }
+
+    public void Exchange(Source source)
+    {
+        number -= source.cost;
+        source.level++;
+        UpdateRate();
     }
 
     private new void OnDestroy()
@@ -65,12 +104,6 @@ public class GameController : Singleton<GameController>
         }
 
         SaveData();
-    }
-
-    private void SaveData()
-    {
-        PlayerPrefs.SetString("Number", number.value.ToString(new CultureInfo("en-GB")));
-        PlayerPrefs.Save();
     }
 
     public void Pause()
