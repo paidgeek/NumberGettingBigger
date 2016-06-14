@@ -62,29 +62,10 @@ class SignInHandler(webapp2.RequestHandler):
 			self.response.write("error")
 
 class NumberHandler(webapp2.RequestHandler):
-	def get(self):
-		self.response.headers["Content-Type"] = "application/json"
-		user_id = self.request.get("user_id")
-		session_token = self.request.get("session_token")
-		user_ids = self.request.get("user_ids").split(",")
-		
-		if not user_id or not session_token or not user_ids:
-			self.response.status_int = 400
-			return
-
-		player = Player.get_by_id(user_id)
-
-		if player is None or player.session_token != session_token:
-			self.response.status_int = 401
-			return
-		
-		players = ndb.get_multi([ndb.Key(Player, k) for k in user_ids])
-		self.response.write(json.dumps([p.number if p and p.number else 0.0 for p in players]))
-	
 	def post(self):
 		self.response.headers["Content-Type"] = "application/json"
-		user_id = self.request.get("user_id")
-		session_token = self.request.get("session_token")
+		user_id = self.request.headers["X-USER-ID"]
+		session_token = self.request.headers["X-SESSION-TOKEN"]
 		number = self.request.get("number")
 
 		if not user_id or not session_token or not number:
@@ -100,8 +81,29 @@ class NumberHandler(webapp2.RequestHandler):
 		player.number = float(number)
 		player.put()
 
+class LeaderboardHandler(webapp2.RequestHandler):
+	def post(self):
+		self.response.headers["Content-Type"] = "application/json"
+		user_id = self.request.headers["X-USER-ID"]
+		session_token = self.request.headers["X-SESSION-TOKEN"]
+		user_ids = self.request.body.split(",")
+		
+		if not user_id or not session_token or not user_ids:
+			self.response.status_int = 400
+			return
+
+		player = Player.get_by_id(user_id)
+
+		if player is None or player.session_token != session_token:
+			self.response.status_int = 401
+			return
+		
+		players = ndb.get_multi([ndb.Key(Player, k) for k in user_ids])
+		self.response.write(json.dumps([p.number if p and p.number else 0.0 for p in players]))
+
 app = webapp2.WSGIApplication([
     ("/", MainPage),
     ("/sign_in", SignInHandler),
-	 ("/numbers", NumberHandler)
+	 ("/numbers", NumberHandler),
+	 ("/leaderboard", LeaderboardHandler)
 ], debug=True)
