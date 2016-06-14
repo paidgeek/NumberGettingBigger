@@ -130,7 +130,7 @@ namespace GooglePlayGames
                 WWW www = new WWW(AvatarURL);
                 while (!www.isDone)
                 {
-                    yield return null;
+                    yield return 0;
                 }
 
                 if (www.error == null)

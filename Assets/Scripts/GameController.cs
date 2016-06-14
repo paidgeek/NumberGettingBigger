@@ -1,5 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Globalization;
+using System.Net.Sockets;
+using GooglePlayGames;
 using UnityEngine;
 
 public class GameController : Singleton<GameController>
@@ -114,5 +117,14 @@ public class GameController : Singleton<GameController>
     public void Continue()
     {
         m_EventDispatcher.Invoke(EventId.ContinueGame);
+    }
+
+    public void SaveToCloud()
+    {
+        if (!Social.localUser.authenticated) {
+            return;
+        }
+
+        Social.ReportScore(BitConverter.DoubleToInt64Bits(number), GooglePlayIds.leaderboardBiggestNumber, success => {});
     }
 }

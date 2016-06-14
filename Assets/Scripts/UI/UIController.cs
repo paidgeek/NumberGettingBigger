@@ -47,11 +47,6 @@ public class UIController : Singleton<UIController>
         }
     }
 
-    public void OnLeaderboardsClick()
-    {
-        Social.ShowLeaderboardUI();
-    }
-
     public void OnShareClick()
     {
         var text = string.Format(Localization.GetText("ShareNumber"),
