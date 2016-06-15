@@ -21,7 +21,7 @@ def generate_session_token():
 	return str().join(random.choice(base64_alphabet) for _ in xrange(160))
 
 @ndb.transactional
-def sign_in_player(user_id):
+def log_in_player(user_id):
 	player = Player.get_by_id(user_id)
 
 	if player:
@@ -32,7 +32,7 @@ def sign_in_player(user_id):
 	player.put()
 	return player
 
-class SignInHandler(webapp2.RequestHandler):
+class LogInHandler(webapp2.RequestHandler):
 	def post(self):
 		self.response.headers["Content-Type"] = "application/json"
 		access_token = self.request.get("access_token")
@@ -52,13 +52,16 @@ class SignInHandler(webapp2.RequestHandler):
 				if app_id != FACEBOOK_APP_ID:
 					self.response.status_int = 401
 				else:
-					player = sign_in_player(user_id)
+					player = log_in_player(user_id)
 					self.response.write(json.dumps(player.to_dict()))
 			else:
+				self.response.status_int = 401
 				self.response.write("error")
 		except urlfetch.InvalidURLError:
+			self.response.status_int = 401
 			self.response.write("error")
 		except urlfetch.DownloadError:
+			self.response.status_int = 401
 			self.response.write("error")
 
 class NumberHandler(webapp2.RequestHandler):
@@ -103,7 +106,7 @@ class LeaderboardHandler(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
     ("/", MainPage),
-    ("/sign_in", SignInHandler),
+    ("/log_in", LogInHandler),
 	 ("/numbers", NumberHandler),
 	 ("/leaderboard", LeaderboardHandler)
-], debug=True)
+], debug=False)

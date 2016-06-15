@@ -14,7 +14,10 @@
     "Shop": "Shop",
     "Tap to play": "Tap to play",
     "ShareNumber": "Check out my big number! {0}",
-    "LeaderboardsConnectMessage": "Sign in to see friend's numbers!",
-    "Biggest Numbers" :  "Biggest Numbers"
+    "LeaderboardsConnectMessage": "Log in to see friend's numbers!",
+    "Biggest Numbers": "Biggest Numbers",
+    "Invite Friends": "Invite Friends",
+    "Log in": "Log in",
+    "Log out" :  "Log out"
   }
 }

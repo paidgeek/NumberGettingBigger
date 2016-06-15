@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
 
 public static class Util
@@ -31,5 +32,23 @@ public static class Util
     {
         var log = Math.Floor(Math.Log10(x));
         return Math.Floor(Math.Floor(x / Math.Pow(10.0, log - 1)) * Math.Pow(10, log - 1));
+    }
+
+    public static IEnumerator FetchSprite(string url, Action<Sprite> callback)
+    {
+        var www = new WWW(url);
+        yield return www;
+
+        if (string.IsNullOrEmpty(www.error)) {
+            var tex = www.texture;
+
+            var sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height),
+                new Vector2(tex.width, tex.height) / 2.0f);
+
+            callback.Invoke(sprite);
+        } else {
+            Debug.LogError(www.error);
+            callback.Invoke(null);
+        }
     }
 }

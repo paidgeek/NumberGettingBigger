@@ -5,13 +5,7 @@ using UnityEngine.UI;
 public class SettingsWindow : MonoBehaviour
 {
     [SerializeField]
-    private GameObject m_HighQualityIcon;
-    [SerializeField]
     private Image m_SoundIcon;
-    [SerializeField]
-    private Image m_ConnectButton;
-    [SerializeField]
-    private Color m_ConnectedButtonTint;
     private GameSettings m_GameSettings;
 
     [Header("Icons")]
@@ -23,9 +17,7 @@ public class SettingsWindow : MonoBehaviour
     private void OnEnable()
     {
         m_GameSettings = GameSettings.instance;
-
         OnSoundChanged();
-        OnLogInChanged();
     }
 
     public void OnSoundClick()
@@ -34,20 +26,12 @@ public class SettingsWindow : MonoBehaviour
         OnSoundChanged();
     }
 
-    public void OnConnectClick()
+    public void OnLogInClick()
     {
-        if (Social.localUser.authenticated) {
-#if UNITY_ANDROID
-            PlayGamesPlatform.Instance.SignOut();
-#endif
-
-            OnLogInChanged();
+        if (BackendController.instance.isLoggedIn) {
+            BackendController.instance.LogOut();
         } else {
-            Social.localUser.Authenticate(success => {
-                if (success) {
-                    OnLogInChanged();
-                }
-            });
+            BackendController.instance.LogIn();
         }
     }
 
@@ -57,15 +41,6 @@ public class SettingsWindow : MonoBehaviour
             m_SoundIcon.sprite = m_SoundOnIcon;
         } else {
             m_SoundIcon.sprite = m_SoundOffIcon;
-        }
-    }
-
-    private void OnLogInChanged()
-    {
-        if (Social.localUser.authenticated) {
-            m_ConnectButton.color = m_ConnectedButtonTint;
-        } else {
-            m_ConnectButton.color = Color.white;
         }
     }
 }

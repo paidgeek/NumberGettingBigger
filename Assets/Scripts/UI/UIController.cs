@@ -6,6 +6,11 @@ public class UIController : Singleton<UIController>
     private DataBindContext m_DataBindContext;
     private ObservableList m_Sources;
 
+    private void Awake()
+    {
+        BackendController.instance.logInStateChanged += OnLogInStateChanged;
+    }
+
     private void Start()
     {
         var gc = GameController.instance;
@@ -19,6 +24,23 @@ public class UIController : Singleton<UIController>
         }
 
         m_DataBindContext["sources"] = m_Sources;
+    }
+
+    private void OnLogInStateChanged(bool loggedIn)
+    {
+        if (loggedIn) {
+            var user = BackendController.instance.localUser;
+
+            m_DataBindContext["userName"] = user.name;
+            if (user.hasPicture) {
+                StartCoroutine(Util.FetchSprite("http://graph.facebook.com/" + user.id + "/picture?type=large", sprite =>
+                {
+                    if (sprite) {
+                        m_DataBindContext["userPicture"] = sprite;
+                    }
+                }));
+            }
+        }
     }
 
     public void ExchangeSource(Source source)
@@ -38,20 +60,16 @@ public class UIController : Singleton<UIController>
         }
     }
 
-    public void OnTwitterClick()
-    {
-        if (Util.IsAppInstalled("com.twitter.android")) {
-            Application.OpenURL("twitter://user?user_id=118175427");
-        } else {
-            Application.OpenURL("https://twitter.com/intent/user?user_id=118175427");
-        }
-    }
-
     public void OnShareClick()
     {
         var text = string.Format(Localization.GetText("ShareNumber"),
             "https://play.google.com/store/apps/details?id=" + Application.bundleIdentifier);
 
         NativeShare.ShareScreenshotWithText(text);
+    }
+
+    public void OnLogInClick()
+    {
+        BackendController.instance.LogIn();
     }
 }
