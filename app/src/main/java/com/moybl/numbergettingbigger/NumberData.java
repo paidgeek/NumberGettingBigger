@@ -4,13 +4,18 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class NumberData {
 
 	private static final String KEY_SOURCE_LEVEL = "source_level";
 	private static final String KEY_NUMBER = "number";
+	private static final String KEY_LAST_UPDATE_AT = "last_update_at";
 
 	private static NumberData sInstance;
 
@@ -24,6 +29,8 @@ public class NumberData {
 
 	private double mNumber;
 	private List<Source> mSources;
+	private double mRate;
+	private long mLastUpdateAt;
 
 	public double getNumber() {
 		return mNumber;
@@ -41,18 +48,50 @@ public class NumberData {
 		mSources = sources;
 	}
 
+	public void exchange(Source source) {
+		if (mNumber < source.getCost()) {
+			return;
+		}
+
+		mNumber -= source.getCost();
+		source.setLevel(source.getLevel() + 1);
+
+		updateRate();
+	}
+
+	private void updateRate() {
+		mRate = 0.0;
+
+		for (int i = 0; i < Source.COUNT; i++) {
+			mRate += mSources.get(i)
+					.getRate();
+		}
+	}
+
+	public double getRate() {
+		return mRate;
+	}
+
 	public void load(Activity activity) {
 		SharedPreferences prefs = activity.getPreferences(Context.MODE_PRIVATE);
 
-		List<Source> sources = new ArrayList<>();
+		mSources = new ArrayList<>();
 
 		for (int i = 0; i < Source.COUNT; i++) {
-			int level = prefs.getInt(KEY_SOURCE_LEVEL + i, 0);
+			int level = prefs.getInt(KEY_SOURCE_LEVEL + i, i == 0 ? 1 : 0);
 
-			sources.add(new Source(1, level));
+			mSources.add(new Source(i, level));
 		}
 
 		mNumber = Double.parseDouble(prefs.getString(KEY_NUMBER, "0.0"));
+
+		mLastUpdateAt = prefs.getLong(KEY_LAST_UPDATE_AT, -1);
+		if (mLastUpdateAt == -1) {
+			mLastUpdateAt = System.currentTimeMillis();
+			update();
+		}
+
+		updateRate();
 	}
 
 	public void save(Activity activity) {
@@ -68,6 +107,26 @@ public class NumberData {
 		editor.putString(KEY_NUMBER, Double.toString(mNumber));
 
 		editor.commit();
+	}
+
+	public void clear(Activity activity) {
+		for (int i = 0; i < Source.COUNT; i++) {
+			Source source = mSources.get(i);
+
+			source.setLevel(0);
+		}
+
+		mNumber = 0.0;
+		mLastUpdateAt = System.currentTimeMillis();
+		updateRate();
+		save(activity);
+	}
+
+	public void update() {
+		long delta = System.currentTimeMillis() - mLastUpdateAt;
+		mLastUpdateAt = System.currentTimeMillis();
+
+		mNumber += mRate * (delta / 1000.0);
 	}
 
 }

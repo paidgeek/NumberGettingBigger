@@ -25,14 +25,24 @@ public class SourceView {
 	}
 
 	public void onExchangeClick() {
-		mSource.setLevel(mSource.getLevel() + 1);
+		NumberData numberData = NumberData.getInstance();
 
-		bind();
+		if (numberData.getNumber() >= mSource.getCost()) {
+			numberData.exchange(mSource);
+			bind();
+		}
+	}
+
+	public void update() {
+		NumberData numberData = NumberData.getInstance();
+
+		mExchangeButton.setEnabled(numberData.getNumber() >= mSource.getCost());
 	}
 
 	public void bind() {
 		mLevelTextView.setText(NumberUtil.format(mSource.getLevel()));
-		mRateTextView.setText(NumberUtil.format(mSource.getRate()));
+		mRateTextView.setText("+" + NumberUtil.format(mSource.getRate()) + "/s");
+		mExchangeButton.setText("-" + NumberUtil.format(mSource.getCost()));
 	}
 
 	public void setSource(Source source) {

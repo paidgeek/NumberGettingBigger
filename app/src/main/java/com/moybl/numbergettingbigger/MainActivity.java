@@ -1,9 +1,19 @@
 package com.moybl.numbergettingbigger;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -16,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
 	ListView mSourcesList;
 
 	private NumberData mNumberData;
+	private SourcesAdapter mSourcesAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -27,10 +38,20 @@ public class MainActivity extends AppCompatActivity {
 		mNumberData = NumberData.getInstance();
 		mNumberData.load(this);
 
-		SourcesAdapter adapter = new SourcesAdapter(this, mNumberData.getSources());
-		mSourcesList.setAdapter(adapter);
+		mSourcesAdapter = new SourcesAdapter(this, mNumberData.getSources());
+		mSourcesList.setAdapter(mSourcesAdapter);
 
 		updateValues();
+
+		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+		scheduler.scheduleAtFixedRate(new Runnable() {
+			@Override
+			public void run() {
+				mNumberData.update();
+				mSourcesAdapter.update();
+				updateValues();
+			}
+		}, 0, 1, TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -38,6 +59,25 @@ public class MainActivity extends AppCompatActivity {
 		super.onStop();
 
 		mNumberData.save(this);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.main_menu, menu);
+
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.option_clear_data:
+				mNumberData.clear(this);
+				return true;
+		}
+
+		return super.onOptionsItemSelected(item);
 	}
 
 	private void updateValues() {

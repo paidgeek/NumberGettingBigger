@@ -33,6 +33,7 @@
 				android:layout_height="wrap_content"
 				android:text="Exchange"
 				android:id="@+id/btn_source_exchange"
-				android:layout_gravity="right"/>
+				android:layout_gravity="right"
+				android:enabled="true"/>
 	</LinearLayout>
 </LinearLayout>
