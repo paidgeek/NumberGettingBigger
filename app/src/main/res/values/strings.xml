@@ -1,8 +1,7 @@
 <resources>
-	<string name="app_name">Number Getting Bigger</string>
+	<string name="app_name">Top Number</string>
 	<string name="facebook_app_id">627321040769639</string>
+	<string name="api_url">https://top-number-4242.appspot.com/_ah/api</string>
 
-	<string name="clear_data">Clear Data</string>
-
-	<string name="title_activity_log_in">LogInActivity</string>
+	<string name="clear_data">Clear data</string>
 </resources>
