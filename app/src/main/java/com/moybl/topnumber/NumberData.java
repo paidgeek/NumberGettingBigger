@@ -15,7 +15,12 @@ import java.util.List;
 
 public class NumberData {
 
+	public interface OnChangeListener {
+		void onExchange(Source source);
+	}
+
 	private static final String KEY_SOURCE_LEVEL = "source_level";
+	private static final String KEY_SOURCE_UNLOCKED = "source_unlocked";
 	private static final String KEY_NUMBER = "number";
 	private static final String KEY_LAST_UPDATE_TIME = "last_update_time";
 
@@ -29,26 +34,37 @@ public class NumberData {
 		return sInstance;
 	}
 
+	private OnChangeListener mOnChangeListener;
 	private List<Source> mSources;
 	private Player mPlayer;
 	private long mLastUpdateTime;
 	private long mTimeOffset;
+	private double mRate;
 
 	public List<Source> getSources() {
 		return mSources;
 	}
 
-	public void setSources(List<Source> sources) {
-		mSources = sources;
+	public void setOnChangeListener(OnChangeListener onChangeListener) {
+		mOnChangeListener = onChangeListener;
 	}
 
-	public void exchange(Source source) {
+	public void exchange(int index) {
+		Source source = mSources.get(index);
+
 		if (mPlayer.getNumber() < source.getCost()) {
 			return;
 		}
 
 		mPlayer.setNumber(mPlayer.getNumber() - source.getCost());
 		source.setLevel(source.getLevel() + 1);
+		source.setUnlocked(true);
+
+		updateRate();
+
+		if (mOnChangeListener != null) {
+			mOnChangeListener.onExchange(source);
+		}
 	}
 
 	public double getNumber() {
@@ -62,12 +78,16 @@ public class NumberData {
 
 		for (int i = 0; i < Source.COUNT; i++) {
 			int level = prefs.getInt(KEY_SOURCE_LEVEL + i, i == 0 ? 1 : 0);
+			boolean unlocked = prefs.getBoolean(KEY_SOURCE_UNLOCKED + i, i == 0);
 
-			if (i == 0 && level == 0) {
-				level = 1;
+			if (i == 0) {
+				if (level == 0) {
+					level = 1;
+				}
+				unlocked = true;
 			}
 
-			mSources.add(new Source(i, level));
+			mSources.add(new Source(i, unlocked, level));
 		}
 
 		mPlayer = TopNumberClient.getInstance()
@@ -80,7 +100,21 @@ public class NumberData {
 		mLastUpdateTime = prefs.getLong(KEY_LAST_UPDATE_TIME, mPlayer.getLogInTime());
 		mTimeOffset = System.currentTimeMillis() - mPlayer.getLogInTime();
 
+		updateRate();
 		update();
+	}
+
+	public void clear(Activity activity) {
+		mPlayer.setNumber(0.0);
+
+		for (int i = 0; i < Source.COUNT; i++) {
+			Source source = mSources.get(i);
+
+			source.setLevel(i == 0 ? 1 : 0);
+			source.setUnlocked(i == 0);
+		}
+
+		save(activity);
 	}
 
 	public void save(Activity activity) {
@@ -91,6 +125,7 @@ public class NumberData {
 			Source source = mSources.get(i);
 
 			editor.putInt(KEY_SOURCE_LEVEL + i, source.getLevel());
+			editor.putBoolean(KEY_SOURCE_UNLOCKED + i, source.isUnlocked());
 		}
 
 		editor.putString(KEY_NUMBER, mPlayer.getNumber()
@@ -107,19 +142,25 @@ public class NumberData {
 				});
 	}
 
-	public void update() {
-		double rate = 0.0;
+	private void updateRate() {
+		mRate = 0.0;
 
 		for (int i = 0; i < Source.COUNT; i++) {
-			rate += mSources.get(i)
+			mRate += mSources.get(i)
 					.getRate();
 		}
+	}
 
+	public double getRate() {
+		return mRate;
+	}
+
+	public void update() {
 		long now = System.currentTimeMillis() - mTimeOffset;
 		long delta = now - mLastUpdateTime;
 		mLastUpdateTime = now;
 
-		mPlayer.setNumber(mPlayer.getNumber() + rate * (delta / 1000.0));
+		mPlayer.setNumber(mPlayer.getNumber() + mRate * (delta / 1000.0));
 	}
 
 }

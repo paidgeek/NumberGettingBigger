@@ -1,39 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-				  android:orientation="horizontal"
-				  android:layout_width="match_parent"
-				  android:layout_height="50dp">
-
-	<LinearLayout
-			android:orientation="vertical"
-			android:layout_width="50dp"
-			android:layout_height="match_parent">
-		<TextView
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:textAppearance="?android:attr/textAppearanceLarge"
-				android:text="1"
-				android:id="@+id/tv_source_level"
-				android:gravity="center_vertical|center_horizontal"/>
-	</LinearLayout>
-	<LinearLayout
-			android:orientation="horizontal"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:layout_weight="0">
-		<TextView
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+				 android:layout_width="match_parent"
+				 android:layout_height="90dp"
+				 android:padding="10dp"
+				 android:layout_marginBottom="10dp"
+				 android:background="@color/colorPrimaryDark">
+	<LinearLayout android:orientation="horizontal"
+					  android:layout_height="match_parent"
+					  android:layout_width="match_parent">
+		<LinearLayout
+				android:orientation="vertical"
 				android:layout_width="wrap_content"
 				android:layout_height="match_parent"
-				android:text="Rate"
-				android:id="@+id/tv_source_rate"
 				android:layout_weight="1"
-				android:gravity="center_vertical"/>
-		<Button
+				android:gravity="center_vertical"
+				android:layout_gravity="center_vertical">
+			<TextView
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:textAppearance="?android:attr/textAppearanceLarge"
+					android:text="1"
+					android:id="@+id/tv_source_level"
+			/>
+			<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="Rate"
+					android:id="@+id/tv_source_rate"
+			/>
+		</LinearLayout>
+		<LinearLayout
+				android:orientation="vertical"
 				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="Exchange"
-				android:id="@+id/btn_source_exchange"
-				android:layout_gravity="right"
-				android:enabled="true"/>
+				android:layout_height="match_parent"
+		>
+			<Button
+					android:layout_width="130dp"
+					android:layout_height="match_parent"
+					android:text="-42"
+					android:id="@+id/btn_source_exchange"
+					android:textAllCaps="false"
+					android:enabled="true"
+					android:textAlignment="center"
+			/>
+		</LinearLayout>
 	</LinearLayout>
-</LinearLayout>
+
+	<TextView android:layout_width="match_parent"
+				 android:layout_height="match_parent"
+				 android:id="@+id/source_overlay"
+				 android:gravity="center_vertical|center_horizontal"
+				 android:background="@color/colorPrimaryDark"
+				 android:textSize="48dp"
+				 android:text="\?"/>
+
+</FrameLayout>

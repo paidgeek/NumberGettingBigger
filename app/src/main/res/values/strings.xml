@@ -4,6 +4,11 @@
 	<string name="api_url">https://top-number-4242.appspot.com/_ah/api</string>
 
 	<string name="log_out">Log out</string>
+	<string name="reset_progress">Reset progress</string>
+	<string name="reset_progress_dialog">Are you sure you want to reset progress?
+	</string>
+	<string name="yes">Yes</string>
+	<string name="no">No</string>
 	<string name="unable_to_log_in">Unable to log in</string>
 	<string name="log_in_was_canceled">Log in was canceled</string>
 </resources>

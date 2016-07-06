@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 	<item android:id="@+id/option_log_out"
-			android:icon="@drawable/com_facebook_button_icon"
 			android:title="@string/log_out"/>
+	<item android:id="@+id/option_reset_progress"
+			android:title="@string/reset_progress"/>
 </menu>
