@@ -2,7 +2,10 @@ package com.moybl.topnumber.backend;
 
 import com.google.api.server.spi.auth.common.User;
 import com.google.api.server.spi.config.ApiMethod;
+import com.google.api.server.spi.config.Named;
+import com.google.api.server.spi.config.Nullable;
 import com.google.api.server.spi.response.UnauthorizedException;
+import com.google.appengine.repackaged.com.google.common.base.Flag;
 
 import com.moybl.topnumber.backend.auth.FacebookAuthenticator;
 import com.moybl.topnumber.backend.auth.PlayerUser;
@@ -21,7 +24,8 @@ public class PlayersEndpoint extends TopNumberEndpoint {
 			httpMethod = ApiMethod.HttpMethod.POST,
 			authenticators = FacebookAuthenticator.class
 	)
-	public Player logInWithFacebook(User user) throws UnauthorizedException, IOException {
+	public Player logInWithFacebook(User user,
+											  @Nullable @Named("reset") boolean reset) throws UnauthorizedException, IOException {
 		if (user == null) {
 			throw new UnauthorizedException("unauthorized");
 		}
@@ -34,9 +38,10 @@ public class PlayersEndpoint extends TopNumberEndpoint {
 				.id(playerUser.getId())
 				.now();
 
-		if (player == null) {
+		if (player == null || reset) {
 			player = new Player();
 			player.setId(playerUser.getId());
+			player.setNumber(0.0);
 		}
 
 		player.setSessionToken(Util.generateSessionToken());

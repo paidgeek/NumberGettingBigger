@@ -19,10 +19,11 @@ public class NumberData {
 		void onExchange(Source source);
 	}
 
-	private static final String KEY_SOURCE_LEVEL = "source_level";
-	private static final String KEY_SOURCE_UNLOCKED = "source_unlocked";
-	private static final String KEY_NUMBER = "number";
-	private static final String KEY_LAST_UPDATE_TIME = "last_update_time";
+	public static final String KEY_SOURCE_LEVEL = "source_level";
+	public static final String KEY_SOURCE_UNLOCKED = "source_unlocked";
+	public static final String KEY_NUMBER = "number";
+	public static final String KEY_LAST_UPDATE_TIME = "last_update_time";
+	public static final String KEY_RESET = "reset";
 
 	private static NumberData sInstance;
 
@@ -71,14 +72,14 @@ public class NumberData {
 		return mPlayer.getNumber();
 	}
 
-	public void load(Activity activity) {
-		SharedPreferences prefs = activity.getPreferences(Context.MODE_PRIVATE);
+	public void load(Context context) {
+		Prefs.load(context);
 
 		mSources = new ArrayList<>();
 
 		for (int i = 0; i < Source.COUNT; i++) {
-			int level = prefs.getInt(KEY_SOURCE_LEVEL + i, i == 0 ? 1 : 0);
-			boolean unlocked = prefs.getBoolean(KEY_SOURCE_UNLOCKED + i, i == 0);
+			int level = Prefs.getInt(KEY_SOURCE_LEVEL + i, i == 0 ? 1 : 0);
+			boolean unlocked = Prefs.getBoolean(KEY_SOURCE_UNLOCKED + i, i == 0);
 
 			if (i == 0) {
 				if (level == 0) {
@@ -92,47 +93,44 @@ public class NumberData {
 
 		mPlayer = TopNumberClient.getInstance()
 				.getPlayer();
-		String prefsNumber = prefs.getString(KEY_NUMBER, null);
-		if (prefsNumber != null) {
-			mPlayer.setNumber(Double.parseDouble(prefsNumber));
-		}
+		mPlayer.setNumber(Prefs.getDouble(KEY_NUMBER, mPlayer.getNumber()));
 
-		mLastUpdateTime = prefs.getLong(KEY_LAST_UPDATE_TIME, mPlayer.getLogInTime());
+		mLastUpdateTime = Prefs.getLong(KEY_LAST_UPDATE_TIME, mPlayer.getLogInTime());
 		mTimeOffset = System.currentTimeMillis() - mPlayer.getLogInTime();
 
 		updateRate();
 		update();
 	}
 
-	public void clear(Activity activity) {
-		mPlayer.setNumber(0.0);
+	public void clear(Context context) {
+		Prefs.load(context);
 
 		for (int i = 0; i < Source.COUNT; i++) {
-			Source source = mSources.get(i);
-
-			source.setLevel(i == 0 ? 1 : 0);
-			source.setUnlocked(i == 0);
+			Prefs.remove(KEY_SOURCE_LEVEL + i);
+			Prefs.remove(KEY_SOURCE_UNLOCKED + i);
 		}
 
-		save(activity);
+		Prefs.remove(KEY_NUMBER);
+		Prefs.remove(KEY_LAST_UPDATE_TIME);
+		Prefs.setBoolean(KEY_RESET, true);
+
+		Prefs.save();
 	}
 
-	public void save(Activity activity) {
-		SharedPreferences prefs = activity.getPreferences(Context.MODE_PRIVATE);
-		final SharedPreferences.Editor editor = prefs.edit();
+	public void save(Context context) {
+		Prefs.load(context);
 
 		for (int i = 0; i < Source.COUNT; i++) {
 			Source source = mSources.get(i);
 
-			editor.putInt(KEY_SOURCE_LEVEL + i, source.getLevel());
-			editor.putBoolean(KEY_SOURCE_UNLOCKED + i, source.isUnlocked());
+			Prefs.setInt(KEY_SOURCE_LEVEL + i, source.getLevel());
+			Prefs.setBoolean(KEY_SOURCE_UNLOCKED + i, source.isUnlocked());
 		}
 
-		editor.putString(KEY_NUMBER, mPlayer.getNumber()
-				.toString());
-		editor.putLong(KEY_LAST_UPDATE_TIME, mLastUpdateTime);
+		Prefs.setDouble(KEY_NUMBER, mPlayer.getNumber());
+		Prefs.setLong(KEY_LAST_UPDATE_TIME, mLastUpdateTime);
 
-		editor.commit();
+		Prefs.save();
 
 		TopNumberClient.getInstance()
 				.insertNumber(mPlayer.getNumber(), new ResultCallback<VoidResult>() {

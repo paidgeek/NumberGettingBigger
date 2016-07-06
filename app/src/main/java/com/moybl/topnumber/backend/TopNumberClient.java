@@ -33,7 +33,7 @@ public class TopNumberClient {
 	private Context mContext;
 	private Player mPlayer;
 
-	public void logInWithFacebook(final String accessToken, final ResultCallback<ObjectResult<Player>> callback) {
+	public void logInWithFacebook(final String accessToken, final boolean reset, final ResultCallback<ObjectResult<Player>> callback) {
 		doServiceCall(new ServiceCall<ObjectResult<Player>>() {
 			@Override
 			public ObjectResult<Player> procedure() {
@@ -54,6 +54,7 @@ public class TopNumberClient {
 
 					Player player = topNumber.players()
 							.logInWithFacebook()
+							.setReset(reset)
 							.execute();
 
 					return new ObjectResult<>(player);

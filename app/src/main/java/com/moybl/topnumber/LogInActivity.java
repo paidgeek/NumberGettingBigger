@@ -1,7 +1,9 @@
 package com.moybl.topnumber;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -38,13 +40,21 @@ public class LogInActivity extends Activity {
 				.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
 					@Override
 					public void onSuccess(LoginResult loginResult) {
+						Prefs.load(getApplicationContext());
+						boolean reset = Prefs.getBoolean(NumberData.KEY_RESET, false);
+
 						final TopNumberClient client = TopNumberClient.getInstance();
 						client.setContext(getApplicationContext());
-						client.logInWithFacebook(loginResult.getAccessToken()
-								.getToken(), new ResultCallback<ObjectResult<Player>>() {
+						String accessToken = loginResult.getAccessToken()
+								.getToken();
+
+						client.logInWithFacebook(accessToken, reset, new ResultCallback<ObjectResult<Player>>() {
 							@Override
 							public void onResult(@NonNull ObjectResult<Player> result) {
 								if (result.isSuccess()) {
+									Prefs.removeAll();
+									Prefs.save();
+
 									Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 									startActivity(intent);
 								} else {

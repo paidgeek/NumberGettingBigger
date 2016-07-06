@@ -1,5 +1,6 @@
 package com.moybl.topnumber;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -63,13 +64,13 @@ public class MainActivity extends AppCompatActivity {
 			Source source = mNumberData.getSources()
 					.get(i);
 
-			View view = inflater.inflate(R.layout.item_source, null);
+			View view = inflater.inflate(R.layout.item_source, mSourcesList, false);
 			SourceView sourceView = new SourceView(view);
 			sourceView.setSource(source);
 			sourceView.update();
 
-			mSourceViews.add(sourceView);
 			mSourcesList.addView(view);
+			mSourceViews.add(sourceView);
 		}
 	}
 
@@ -143,15 +144,16 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private void onResetProgressClick() {
+		final Activity activity = this;
+
 		DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				switch (which) {
 					case DialogInterface.BUTTON_POSITIVE:
-						mNumberData.clear(getParent());
-						update();
+						mNumberData.clear(activity);
+						finish();
 						break;
-
 					case DialogInterface.BUTTON_NEGATIVE:
 						break;
 				}

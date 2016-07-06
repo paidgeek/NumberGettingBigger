@@ -13,15 +13,23 @@ public class SourceView {
 	private TextView mLevelTextView;
 	private TextView mRateTextView;
 	private Button mExchangeButton;
-	private View mOverlay;
+	private View mUnlockView;
+	private Button mUnlockButton;
 
 	public SourceView(View view) {
 		mView = view;
 		mLevelTextView = (TextView) mView.findViewById(R.id.tv_source_level);
 		mRateTextView = (TextView) mView.findViewById(R.id.tv_source_rate);
 		mExchangeButton = (Button) mView.findViewById(R.id.btn_source_exchange);
-		mOverlay = mView.findViewById(R.id.source_overlay);
+		mUnlockView = mView.findViewById(R.id.source_unlock);
+		mUnlockButton = (Button) mView.findViewById(R.id.btn_source_unlock);
 
+		mUnlockButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				exchange();
+			}
+		});
 		mExchangeButton.setOnTouchListener(new RepeatListener(500, 100, new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -56,13 +64,19 @@ public class SourceView {
 
 		Source previous = index > 0 ? sources.get(index - 1) : null;
 
-		if (mSource.isUnlocked() || previous != null && previous.isUnlocked() && numberData.getNumber() >= mSource.getCost()) {
+		if (mSource.isUnlocked()) {
 			mView.setVisibility(View.VISIBLE);
+			mUnlockView.setVisibility(View.GONE);
 		} else {
-			mView.setVisibility(View.GONE);
+			if (previous != null && previous.isUnlocked()) {
+				mView.setVisibility(View.VISIBLE);
+				mUnlockView.setVisibility(View.VISIBLE);
+				mUnlockButton.setText("-" + NumberUtil.formatNumberWithNewLine(cost));
+				mExchangeButton.setEnabled(false);
+			} else {
+				mView.setVisibility(View.GONE);
+			}
 		}
-
-		mOverlay.setVisibility(!mSource.isUnlocked() && numberData.getNumber() < mSource.getCost() ? View.VISIBLE : View.GONE);
 	}
 
 	public void setSource(Source source) {
