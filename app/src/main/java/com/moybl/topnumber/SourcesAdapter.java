@@ -39,6 +39,7 @@ public class SourcesAdapter extends ArrayAdapter<Source> {
 		Source source = getItem(position);
 		sourceView.setSource(source);
 		sourceView.bind();
+		sourceView.update();
 
 		return convertView;
 	}

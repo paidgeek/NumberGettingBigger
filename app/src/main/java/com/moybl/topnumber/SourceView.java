@@ -31,6 +31,8 @@ public class SourceView {
 			numberData.exchange(mSource);
 			bind();
 		}
+
+		update();
 	}
 
 	public void update() {

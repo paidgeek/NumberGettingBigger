@@ -3,6 +3,13 @@ package com.moybl.topnumber;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
+
+import com.moybl.topnumber.backend.ResultCallback;
+import com.moybl.topnumber.backend.TopNumberClient;
+import com.moybl.topnumber.backend.VoidResult;
+import com.moybl.topnumber.backend.topNumber.TopNumber;
+import com.moybl.topnumber.backend.topNumber.model.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +18,6 @@ public class NumberData {
 
 	private static final String KEY_SOURCE_LEVEL = "source_level";
 	private static final String KEY_NUMBER = "number";
-	private static final String KEY_LAST_UPDATE_AT = "last_update_at";
 
 	private static NumberData sInstance;
 
@@ -23,18 +29,10 @@ public class NumberData {
 		return sInstance;
 	}
 
-	private double mNumber;
 	private List<Source> mSources;
-	private double mRate;
+	private Player mPlayer;
 	private long mLastUpdateAt;
-
-	public double getNumber() {
-		return mNumber;
-	}
-
-	public void setNumber(double number) {
-		mNumber = number;
-	}
+	private long mCurrentTimeOffset;
 
 	public List<Source> getSources() {
 		return mSources;
@@ -45,27 +43,16 @@ public class NumberData {
 	}
 
 	public void exchange(Source source) {
-		if (mNumber < source.getCost()) {
+		if (mPlayer.getNumber() < source.getCost()) {
 			return;
 		}
 
-		mNumber -= source.getCost();
+		mPlayer.setNumber(mPlayer.getNumber() - source.getCost());
 		source.setLevel(source.getLevel() + 1);
-
-		updateRate();
 	}
 
-	private void updateRate() {
-		mRate = 0.0;
-
-		for (int i = 0; i < Source.COUNT; i++) {
-			mRate += mSources.get(i)
-					.getRate();
-		}
-	}
-
-	public double getRate() {
-		return mRate;
+	public double getNumber() {
+		return mPlayer.getNumber();
 	}
 
 	public void load(Activity activity) {
@@ -76,23 +63,30 @@ public class NumberData {
 		for (int i = 0; i < Source.COUNT; i++) {
 			int level = prefs.getInt(KEY_SOURCE_LEVEL + i, i == 0 ? 1 : 0);
 
+			if (i == 0 && level == 0) {
+				level = 1;
+			}
+
 			mSources.add(new Source(i, level));
 		}
 
-		mNumber = Double.parseDouble(prefs.getString(KEY_NUMBER, "0.0"));
-
-		mLastUpdateAt = prefs.getLong(KEY_LAST_UPDATE_AT, -1);
-		if (mLastUpdateAt == -1) {
-			mLastUpdateAt = System.currentTimeMillis();
-			update();
+		mPlayer = TopNumberClient.getInstance()
+				.getPlayer();
+		String prefsNumber = prefs.getString(KEY_NUMBER, null);
+		if (prefsNumber != null) {
+			mPlayer.setNumber(Double.parseDouble(prefsNumber));
 		}
 
-		updateRate();
+		mLastUpdateAt = mPlayer.getLastLogInAt()
+				.getValue();
+		mCurrentTimeOffset = System.currentTimeMillis() - mPlayer.getCurrentLogInTime()
+				.getValue();
+		update();
 	}
 
 	public void save(Activity activity) {
 		SharedPreferences prefs = activity.getPreferences(Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = prefs.edit();
+		final SharedPreferences.Editor editor = prefs.edit();
 
 		for (int i = 0; i < Source.COUNT; i++) {
 			Source source = mSources.get(i);
@@ -100,29 +94,31 @@ public class NumberData {
 			editor.putInt(KEY_SOURCE_LEVEL + i, source.getLevel());
 		}
 
-		editor.putString(KEY_NUMBER, Double.toString(mNumber));
+		editor.putString(KEY_NUMBER, mPlayer.getNumber()
+				.toString());
 
 		editor.commit();
-	}
 
-	public void clear(Activity activity) {
-		for (int i = 0; i < Source.COUNT; i++) {
-			Source source = mSources.get(i);
-
-			source.setLevel(0);
-		}
-
-		mNumber = 0.0;
-		mLastUpdateAt = System.currentTimeMillis();
-		updateRate();
-		save(activity);
+		TopNumberClient.getInstance()
+				.insertNumber(mPlayer.getNumber(), new ResultCallback<VoidResult>() {
+					@Override
+					public void onResult(@NonNull VoidResult result) {
+					}
+				});
 	}
 
 	public void update() {
-		long delta = System.currentTimeMillis() - mLastUpdateAt;
-		mLastUpdateAt = System.currentTimeMillis();
+		double rate = 0.0;
 
-		mNumber += mRate * (delta / 1000.0);
+		for (int i = 0; i < Source.COUNT; i++) {
+			rate += mSources.get(i)
+					.getRate();
+		}
+
+		long delta = (System.currentTimeMillis() + mCurrentTimeOffset) - mLastUpdateAt;
+		mLastUpdateAt = System.currentTimeMillis() + mCurrentTimeOffset;
+
+		mPlayer.setNumber(mPlayer.getNumber() + rate * (delta / 1000.0));
 	}
 
 }

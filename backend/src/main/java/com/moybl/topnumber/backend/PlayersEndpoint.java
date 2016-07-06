@@ -45,6 +45,8 @@ public class PlayersEndpoint extends TopNumberEndpoint {
 		player.setCurrentLogInTime(Calendar.getInstance()
 				.getTime());
 
+		Date lastLogInAt = player.getLastLogInAt();
+
 		if (player.getLastLogInAt() == null) {
 			player.setLastLogInAt(Calendar.getInstance()
 					.getTime());
@@ -54,6 +56,8 @@ public class PlayersEndpoint extends TopNumberEndpoint {
 				.save()
 				.entity(player)
 				.now();
+
+		player.setLastLogInAt(lastLogInAt);
 
 		return player;
 	}
