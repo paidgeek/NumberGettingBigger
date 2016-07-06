@@ -15,9 +15,8 @@ public class Player {
 	private String sessionToken;
 	@Index
 	private double number;
-	private Date lastLogInAt;
 	@Ignore
-	private Date currentLogInTime;
+	private long logInTime;
 
 	public void setId(String id) {
 		this.id = id;
@@ -43,20 +42,12 @@ public class Player {
 		this.number = number;
 	}
 
-	public Date getLastLogInAt() {
-		return lastLogInAt;
+	public void setLogInTime(long logInTime) {
+		this.logInTime = logInTime;
 	}
 
-	public void setLastLogInAt(Date lastLogInAt) {
-		this.lastLogInAt = lastLogInAt;
-	}
-
-	public Date getCurrentLogInTime() {
-		return currentLogInTime;
-	}
-
-	public void setCurrentLogInTime(Date currentLogInTime) {
-		this.currentLogInTime = currentLogInTime;
+	public long getLogInTime() {
+		return logInTime;
 	}
 
 }

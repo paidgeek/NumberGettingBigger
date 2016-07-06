@@ -11,8 +11,6 @@ import com.moybl.topnumber.backend.model.Player;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -42,22 +40,13 @@ public class PlayersEndpoint extends TopNumberEndpoint {
 		}
 
 		player.setSessionToken(Util.generateSessionToken());
-		player.setCurrentLogInTime(Calendar.getInstance()
-				.getTime());
-
-		Date lastLogInAt = player.getLastLogInAt();
-
-		if (player.getLastLogInAt() == null) {
-			player.setLastLogInAt(Calendar.getInstance()
-					.getTime());
-		}
 
 		OfyService.ofy()
 				.save()
 				.entity(player)
 				.now();
 
-		player.setLastLogInAt(lastLogInAt);
+		player.setLogInTime(System.currentTimeMillis());
 
 		return player;
 	}

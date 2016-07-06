@@ -8,7 +8,6 @@ import android.support.annotation.NonNull;
 import com.moybl.topnumber.backend.ResultCallback;
 import com.moybl.topnumber.backend.TopNumberClient;
 import com.moybl.topnumber.backend.VoidResult;
-import com.moybl.topnumber.backend.topNumber.TopNumber;
 import com.moybl.topnumber.backend.topNumber.model.Player;
 
 import java.util.ArrayList;
@@ -18,6 +17,7 @@ public class NumberData {
 
 	private static final String KEY_SOURCE_LEVEL = "source_level";
 	private static final String KEY_NUMBER = "number";
+	private static final String KEY_LAST_UPDATE_TIME = "last_update_time";
 
 	private static NumberData sInstance;
 
@@ -31,8 +31,8 @@ public class NumberData {
 
 	private List<Source> mSources;
 	private Player mPlayer;
-	private long mLastUpdateAt;
-	private long mCurrentTimeOffset;
+	private long mLastUpdateTime;
+	private long mTimeOffset;
 
 	public List<Source> getSources() {
 		return mSources;
@@ -77,10 +77,9 @@ public class NumberData {
 			mPlayer.setNumber(Double.parseDouble(prefsNumber));
 		}
 
-		mLastUpdateAt = mPlayer.getLastLogInAt()
-				.getValue();
-		mCurrentTimeOffset = System.currentTimeMillis() - mPlayer.getCurrentLogInTime()
-				.getValue();
+		mLastUpdateTime = prefs.getLong(KEY_LAST_UPDATE_TIME, mPlayer.getLogInTime());
+		mTimeOffset = System.currentTimeMillis() - mPlayer.getLogInTime();
+
 		update();
 	}
 
@@ -96,6 +95,7 @@ public class NumberData {
 
 		editor.putString(KEY_NUMBER, mPlayer.getNumber()
 				.toString());
+		editor.putLong(KEY_LAST_UPDATE_TIME, mLastUpdateTime);
 
 		editor.commit();
 
@@ -115,8 +115,9 @@ public class NumberData {
 					.getRate();
 		}
 
-		long delta = (System.currentTimeMillis() + mCurrentTimeOffset) - mLastUpdateAt;
-		mLastUpdateAt = System.currentTimeMillis() + mCurrentTimeOffset;
+		long now = System.currentTimeMillis() - mTimeOffset;
+		long delta = now - mLastUpdateTime;
+		mLastUpdateTime = now;
 
 		mPlayer.setNumber(mPlayer.getNumber() + rate * (delta / 1000.0));
 	}

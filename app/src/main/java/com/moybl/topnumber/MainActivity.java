@@ -4,14 +4,20 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.moybl.topnumber.backend.TopNumberClient;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
@@ -27,11 +33,11 @@ public class MainActivity extends AppCompatActivity {
 	@BindView(R.id.tv_number)
 	TextView mNumberTextView;
 	@BindView(R.id.list_sources)
-	ListView mSourcesList;
+	LinearLayout mSourcesList;
 
 	private TopNumberClient mClient;
 	private NumberData mNumberData;
-	private SourcesAdapter mSourcesAdapter;
+	private List<SourceView> mSourceViews;
 	private Timer mTimer;
 
 	@Override
@@ -52,8 +58,21 @@ public class MainActivity extends AppCompatActivity {
 		mNumberData = NumberData.getInstance();
 		mNumberData.load(this);
 
-		mSourcesAdapter = new SourcesAdapter(this, mNumberData.getSources());
-		mSourcesList.setAdapter(mSourcesAdapter);
+		LayoutInflater inflater = LayoutInflater.from(this);
+		mSourceViews = new ArrayList<>();
+		for (int i = 0; i < Source.COUNT; i++) {
+			Source source = mNumberData.getSources()
+					.get(i);
+
+			View view = inflater.inflate(R.layout.item_source, null);
+			SourceView sourceView = new SourceView(view);
+			sourceView.setSource(source);
+			sourceView.bind();
+			sourceView.update();
+
+			mSourceViews.add(sourceView);
+			mSourcesList.addView(view);
+		}
 	}
 
 	@Override
@@ -68,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
 	protected void onStart() {
 		super.onStart();
 
-		updateValues();
+		update();
 		mTimer = new Timer();
 		mTimer.scheduleAtFixedRate(new TimerTask() {
 			@Override
@@ -76,13 +95,22 @@ public class MainActivity extends AppCompatActivity {
 				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						mNumberData.update();
-						mSourcesAdapter.update();
-						updateValues();
+						update();
 					}
 				});
 			}
 		}, 0, 1000);
+	}
+
+	private void update() {
+		mNumberData.update();
+		for (int i = 0; i < mSourceViews.size(); i++) {
+			mSourceViews.get(i)
+					.update();
+		}
+		double number = mNumberData.getNumber();
+
+		mNumberTextView.setText(NumberUtil.format(NumberUtil.firstDigits(number)) + "\n" + NumberUtil.powerName(this, number));
 	}
 
 	@Override
@@ -102,12 +130,6 @@ public class MainActivity extends AppCompatActivity {
 		}
 
 		return super.onOptionsItemSelected(item);
-	}
-
-	private void updateValues() {
-		double number = mNumberData.getNumber();
-
-		mNumberTextView.setText(NumberUtil.format(NumberUtil.firstDigits(number)) + "\n" + NumberUtil.powerName(this, number));
 	}
 
 }
