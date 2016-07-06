@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -37,30 +38,33 @@ public class LogInActivity extends Activity {
 				.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
 					@Override
 					public void onSuccess(LoginResult loginResult) {
-						TopNumberClient.getInstance()
-								.setContext(getApplicationContext());
-						TopNumberClient.getInstance()
-								.logInWithFacebook(loginResult.getAccessToken()
-										.getToken(), new ResultCallback<ObjectResult<Player>>() {
-									@Override
-									public void onResult(@NonNull ObjectResult<Player> result) {
-										if (result.isSuccess()) {
-											Log.d("LOG_IN", result.getObject()
-													.getId());
-
-											Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-											startActivity(intent);
-										}
-									}
-								});
+						final TopNumberClient client = TopNumberClient.getInstance();
+						client.setContext(getApplicationContext());
+						client.logInWithFacebook(loginResult.getAccessToken()
+								.getToken(), new ResultCallback<ObjectResult<Player>>() {
+							@Override
+							public void onResult(@NonNull ObjectResult<Player> result) {
+								if (result.isSuccess()) {
+									Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+									startActivity(intent);
+								} else {
+									Toast.makeText(getApplicationContext(), R.string.unable_to_log_in, Toast.LENGTH_LONG)
+											.show();
+								}
+							}
+						});
 					}
 
 					@Override
 					public void onCancel() {
+						Toast.makeText(getApplicationContext(), R.string.log_in_was_canceled, Toast.LENGTH_LONG)
+								.show();
 					}
 
 					@Override
 					public void onError(FacebookException error) {
+						Toast.makeText(getApplicationContext(), R.string.unable_to_log_in, Toast.LENGTH_LONG)
+								.show();
 					}
 				});
 	}

@@ -6,7 +6,10 @@
 		<servlet-class>com.google.api.server.spi.SystemServiceServlet</servlet-class>
 		<init-param>
 			<param-name>services</param-name>
-			<param-value>com.moybl.topnumber.backend.PlayersEndpoint</param-value>
+			<param-value>
+				com.moybl.topnumber.backend.PlayersEndpoint,
+				com.moybl.topnumber.backend.NumbersEndpoint
+			</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>

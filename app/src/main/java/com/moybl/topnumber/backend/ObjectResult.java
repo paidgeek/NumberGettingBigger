@@ -10,7 +10,7 @@ public class ObjectResult<T> implements Result {
 	}
 
 	public ObjectResult(T data) {
-		mIsSuccess = true;
+		mIsSuccess = data != null;
 		mData = data;
 	}
 

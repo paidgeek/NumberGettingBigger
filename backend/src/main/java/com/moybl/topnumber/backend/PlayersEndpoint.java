@@ -10,6 +10,11 @@ import com.moybl.topnumber.backend.auth.TopNumberAuthenticator;
 import com.moybl.topnumber.backend.model.Player;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
 
 public class PlayersEndpoint extends TopNumberEndpoint {
 
@@ -37,6 +42,13 @@ public class PlayersEndpoint extends TopNumberEndpoint {
 		}
 
 		player.setSessionToken(Util.generateSessionToken());
+		player.setCurrentLogInTime(Calendar.getInstance()
+				.getTime());
+
+		if (player.getLastLogInAt() == null) {
+			player.setLastLogInAt(Calendar.getInstance()
+					.getTime());
+		}
 
 		OfyService.ofy()
 				.save()
@@ -44,6 +56,35 @@ public class PlayersEndpoint extends TopNumberEndpoint {
 				.now();
 
 		return player;
+	}
+
+	@ApiMethod(
+			name = "players.insertTestPlayers",
+			httpMethod = ApiMethod.HttpMethod.POST,
+			authenticators = TopNumberAuthenticator.class
+	)
+	public void insertTestPlayers(User user) throws UnauthorizedException, IOException {
+		if (user == null) {
+			throw new UnauthorizedException("unauthorized");
+		}
+
+		List<Player> players = new ArrayList<>();
+		Random random = new Random();
+
+		for (int i = 0; i < 100; i++) {
+			Player player = new Player();
+
+			player.setId(random.nextLong() + "");
+			player.setSessionToken(Util.generateSessionToken());
+			player.setNumber(random.nextInt(100000));
+
+			players.add(player);
+		}
+
+		OfyService.ofy()
+				.save()
+				.entities(players)
+				.now();
 	}
 
 }

@@ -21,12 +21,10 @@ public class TopNumberAuthenticator implements Authenticator {
 			return null;
 		}
 
-		Key playerKey = KeyFactory.createKey("Player", playerId);
 		Player player = OfyService.ofy()
 				.load()
 				.type(Player.class)
-				.filterKey(playerKey)
-				.first()
+				.id(playerId)
 				.now();
 
 		if (player == null || !sessionToken.equals(player.getSessionToken())) {

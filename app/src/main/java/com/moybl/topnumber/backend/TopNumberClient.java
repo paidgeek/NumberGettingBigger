@@ -1,8 +1,5 @@
 package com.moybl.topnumber.backend;
 
-import com.google.api.client.auth.oauth2.BearerToken;
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
@@ -12,12 +9,13 @@ import com.google.api.client.http.HttpHeaders;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.facebook.AccessToken;
 import com.moybl.topnumber.R;
 import com.moybl.topnumber.backend.topNumber.TopNumber;
+import com.moybl.topnumber.backend.topNumber.model.CollectionResponsePlayer;
 import com.moybl.topnumber.backend.topNumber.model.Player;
 
 import java.io.IOException;
+import java.util.List;
 
 public class TopNumberClient {
 
@@ -40,7 +38,7 @@ public class TopNumberClient {
 			@Override
 			public ObjectResult<Player> procedure() {
 				try {
-					TopNumber yayNay = new TopNumber.Builder(AndroidHttp.newCompatibleTransport(),
+					TopNumber topNumber = new TopNumber.Builder(AndroidHttp.newCompatibleTransport(),
 							new AndroidJsonFactory(), null)
 							.setApplicationName(mContext.getPackageName())
 							.setRootUrl(mContext.getString(R.string.api_url))
@@ -54,11 +52,11 @@ public class TopNumberClient {
 							})
 							.build();
 
-					Player asker = yayNay.players()
+					Player player = topNumber.players()
 							.logInWithFacebook()
 							.execute();
 
-					return new ObjectResult<>(asker);
+					return new ObjectResult<>(player);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -71,6 +69,77 @@ public class TopNumberClient {
 				mPlayer = result.getObject();
 				createAuthenticatedClient();
 				callback.onResult(result);
+			}
+		});
+	}
+
+	public void insertNumber(final double number, final ResultCallback<VoidResult> callback) {
+		doServiceCall(new ServiceCall<VoidResult>() {
+			@Override
+			public VoidResult procedure() {
+				try {
+					mTopNumber.numbers()
+							.insert(number)
+							.execute();
+
+					return new VoidResult(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				return new VoidResult(false);
+			}
+
+			@Override
+			public void finished(VoidResult result) {
+				callback.onResult(result);
+			}
+		});
+	}
+
+	public void listTop(String nextPageToken, final ResultCallback<ObjectResult<CollectionResponsePlayer>> callback) {
+		doServiceCall(new ServiceCall<ObjectResult<CollectionResponsePlayer>>() {
+			@Override
+			public ObjectResult<CollectionResponsePlayer> procedure() {
+				try {
+					CollectionResponsePlayer response = mTopNumber.numbers()
+							.listTop()
+							.execute();
+
+					return new ObjectResult<>(response);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				return new ObjectResult<>();
+			}
+
+			@Override
+			public void finished(ObjectResult<CollectionResponsePlayer> result) {
+				callback.onResult(result);
+			}
+		});
+	}
+
+	public void insertTestPlayers() {
+		doServiceCall(new ServiceCall<VoidResult>() {
+			@Override
+			public VoidResult procedure() {
+				try {
+					mTopNumber.players()
+							.insertTestPlayers()
+							.execute();
+
+					return new VoidResult(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				return new VoidResult(false);
+			}
+
+			@Override
+			public void finished(VoidResult result) {
 			}
 		});
 	}
