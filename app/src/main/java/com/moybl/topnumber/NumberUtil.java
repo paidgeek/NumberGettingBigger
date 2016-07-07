@@ -8,10 +8,15 @@ import java.text.NumberFormat;
 public class NumberUtil {
 
 	private static DecimalFormat sDecimalFormat = new DecimalFormat("#.###");
+	private static NumberFormat sNumberFormat = NumberFormat.getNumberInstance();
 	private static Context sContext;
+	private static String[] sNumberNames;
 
 	public static void setContext(Context context) {
 		sContext = context;
+
+		sNumberNames = sContext.getResources()
+				.getStringArray(R.array.numbers);
 	}
 
 	public static double prettyNumber(double x) {
@@ -40,8 +45,7 @@ public class NumberUtil {
 	}
 
 	public static String format(int x) {
-		return NumberFormat.getNumberInstance()
-				.format(x);
+		return sNumberFormat.format(x);
 	}
 
 	public static String formatNumber(double x) {
@@ -51,8 +55,7 @@ public class NumberUtil {
 		if (power >= 3) {
 			return sDecimalFormat.format(firstDigits) + " " + powerName(x);
 		} else {
-			return NumberFormat.getNumberInstance()
-					.format(x);
+			return sNumberFormat.format(x);
 		}
 	}
 
@@ -63,18 +66,15 @@ public class NumberUtil {
 		if (power >= 3) {
 			return sDecimalFormat.format(firstDigits) + "\n" + powerName(x);
 		} else {
-			return NumberFormat.getNumberInstance()
-					.format(x);
+			return sNumberFormat.format(x);
 		}
 	}
 
 	public static String powerName(double x) {
-		String[] numbers = sContext.getResources()
-				.getStringArray(R.array.numbers);
 		int power = powerOf(x);
 
 		if (power >= 3) {
-			return numbers[Math.min(power / 3 - 1, numbers.length - 1)];
+			return sNumberNames[Math.min(power / 3 - 1, sNumberNames.length - 1)];
 		}
 
 		return "";

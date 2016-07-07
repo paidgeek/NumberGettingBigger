@@ -72,9 +72,7 @@ public class NumberData {
 		return mPlayer.getNumber();
 	}
 
-	public void load(Context context) {
-		Prefs.load(context);
-
+	public void load() {
 		mSources = new ArrayList<>();
 
 		for (int i = 0; i < Source.COUNT; i++) {
@@ -102,9 +100,7 @@ public class NumberData {
 		update();
 	}
 
-	public void clear(Context context) {
-		Prefs.load(context);
-
+	public void clear() {
 		for (int i = 0; i < Source.COUNT; i++) {
 			Prefs.remove(KEY_SOURCE_LEVEL + i);
 			Prefs.remove(KEY_SOURCE_UNLOCKED + i);
@@ -117,9 +113,7 @@ public class NumberData {
 		Prefs.save();
 	}
 
-	public void save(Context context) {
-		Prefs.load(context);
-
+	public void save() {
 		for (int i = 0; i < Source.COUNT; i++) {
 			Source source = mSources.get(i);
 

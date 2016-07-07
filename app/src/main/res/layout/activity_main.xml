@@ -1,56 +1,57 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-				  android:orientation="vertical"
-				  android:layout_width="match_parent"
-				  android:layout_height="match_parent"
-				  android:background="@color/black_overlay">
+<FrameLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:background="@color/black_overlay">
+	<LinearLayout
+			android:orientation="vertical"
+			android:layout_height="match_parent"
+			android:layout_width="match_parent">
 
-	<ScrollView android:layout_width="match_parent"
-					android:layout_height="match_parent"
-					android:layout_weight="1">
-		<LinearLayout android:layout_width="match_parent"
-						  android:layout_height="wrap_content"
-						  android:orientation="vertical">
-			<LinearLayout
-					android:orientation="vertical"
+		<LinearLayout
+				android:orientation="vertical"
+				android:layout_width="match_parent"
+				android:id="@+id/layout_top"
+				android:layout_height="wrap_content"
+				android:padding="20dp">
+			<TextView
 					android:layout_width="match_parent"
-					android:id="@+id/layout_top"
 					android:layout_height="wrap_content"
-					android:padding="20dp">
-				<TextView
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:textAppearance="?android:attr/textAppearanceLarge"
-						android:layout_gravity="center_horizontal"
-						android:gravity="center_vertical|center_horizontal"
-						android:id="@+id/tv_number"
-						android:text="42"
-						android:textSize="48dp"
-						android:textStyle="bold"/>
-				<TextView
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:textAppearance="?android:attr/textAppearanceLarge"
-						android:textSize="24dp"
-						android:id="@+id/tv_number_name"
-						android:gravity="center_horizontal"
-						android:text="Thousand"/>
-				<TextView
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:textAppearance="?android:attr/textAppearanceSmall"
-						android:text="+1/s"
-						android:id="@+id/tv_rate"
-						android:layout_gravity="center_horizontal"
-						android:layout_marginTop="5dp"/>
-			</LinearLayout>
+					android:textAppearance="?android:attr/textAppearanceLarge"
+					android:layout_gravity="center_horizontal"
+					android:gravity="center_vertical|center_horizontal"
+					android:id="@+id/tv_number"
+					android:text="42"
+					android:textSize="48dp"
+					android:textStyle="bold"/>
+			<TextView
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:textAppearance="?android:attr/textAppearanceLarge"
+					android:textSize="24dp"
+					android:id="@+id/tv_number_name"
+					android:gravity="center_horizontal"
+					android:text="Thousand"/>
+			<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textAppearance="?android:attr/textAppearanceSmall"
+					android:text="+1/s"
+					android:id="@+id/tv_rate"
+					android:layout_gravity="center_horizontal"
+					android:layout_marginTop="5dp"/>
+		</LinearLayout>
+
+		<ScrollView android:layout_width="match_parent"
+						android:layout_height="match_parent"
+						android:layout_weight="1">
 			<LinearLayout android:layout_width="match_parent"
 							  android:layout_height="wrap_content"
 							  android:layout_marginLeft="10dp"
 							  android:layout_marginRight="10dp"
 							  android:id="@+id/list_sources"
 							  android:orientation="vertical">
-
 			</LinearLayout>
-		</LinearLayout>
-	</ScrollView>
-</LinearLayout>
+		</ScrollView>
+	</LinearLayout>
+</FrameLayout>

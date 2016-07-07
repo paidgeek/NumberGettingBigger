@@ -9,9 +9,9 @@ public class Source {
 	private boolean mUnlocked;
 	private int mLevel;
 
-	public Source(int index, boolean ulocked, int level) {
+	public Source(int index, boolean unlocked, int level) {
 		mIndex = index;
-		mUnlocked = ulocked;
+		mUnlocked = unlocked;
 		mLevel = level;
 	}
 

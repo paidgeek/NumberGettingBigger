@@ -62,13 +62,20 @@ public class RepeatListener implements OnTouchListener {
 				return true;
 			case MotionEvent.ACTION_UP:
 			case MotionEvent.ACTION_CANCEL:
-				handler.removeCallbacks(handlerRunnable);
-				downView.setPressed(false);
-				downView = null;
+				cancel();
 				return true;
 		}
 
 		return false;
+	}
+
+	public void cancel(){
+		handler.removeCallbacks(handlerRunnable);
+
+		if(downView != null){
+			downView.setPressed(false);
+			downView = null;
+		}
 	}
 
 }

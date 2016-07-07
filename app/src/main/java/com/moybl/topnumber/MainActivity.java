@@ -3,8 +3,11 @@ package com.moybl.topnumber;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,6 +28,13 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
 
+	// TODO prettify
+	private static MainActivity sInstance;
+
+	public static MainActivity getInstance() {
+		return sInstance;
+	}
+
 	@BindView(R.id.tv_number)
 	TextView mNumberTextView;
 	@BindView(R.id.tv_number_name)
@@ -37,11 +47,13 @@ public class MainActivity extends AppCompatActivity {
 	private TopNumberClient mClient;
 	private NumberData mNumberData;
 	private List<SourceView> mSourceViews;
-	private Timer mTimer;
+	private boolean mUpdateRunning;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		sInstance = this;
 
 		setContentView(R.layout.activity_main);
 		ButterKnife.bind(this);
@@ -54,9 +66,11 @@ public class MainActivity extends AppCompatActivity {
 			return;
 		}
 
+		Prefs.load(this);
+		Prefs.setDouble(NumberData.KEY_NUMBER, 10e10);
 		NumberUtil.setContext(this);
 		mNumberData = NumberData.getInstance();
-		mNumberData.load(this);
+		mNumberData.load();
 
 		LayoutInflater inflater = LayoutInflater.from(this);
 		mSourceViews = new ArrayList<>();
@@ -69,6 +83,10 @@ public class MainActivity extends AppCompatActivity {
 			sourceView.setSource(source);
 			sourceView.update();
 
+			float h = (((1.0f + (float)Math.sqrt(5)) * 5.0f) * i) % 360.0f;
+			float s = Math.min(0.6f, i / (Source.COUNT * 0.4f));
+			view.setBackgroundColor(Color.HSVToColor(new float[]{h, s, 0.6f}));
+
 			mSourcesList.addView(view);
 			mSourceViews.add(sourceView);
 		}
@@ -78,8 +96,8 @@ public class MainActivity extends AppCompatActivity {
 	protected void onStop() {
 		super.onStop();
 
-		mTimer.cancel();
-		mNumberData.save(this);
+		mUpdateRunning = false;
+		mNumberData.save();
 	}
 
 	@Override
@@ -87,21 +105,28 @@ public class MainActivity extends AppCompatActivity {
 		super.onStart();
 
 		update();
-		mTimer = new Timer();
-		mTimer.scheduleAtFixedRate(new TimerTask() {
+
+		mUpdateRunning = true;
+		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						update();
+				while (mUpdateRunning) {
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							update();
+						}
+					});
+					try {
+						Thread.sleep(30);
+					} catch (InterruptedException e) {
 					}
-				});
+				}
 			}
-		}, 0, 1000);
+		}).start();
 	}
 
-	private void update() {
+	public void update() {
 		mNumberData.update();
 		for (int i = 0; i < mSourceViews.size(); i++) {
 			SourceView sourceView = mSourceViews.get(i);
@@ -113,10 +138,11 @@ public class MainActivity extends AppCompatActivity {
 		mNumberTextView.setText(NumberUtil.format(NumberUtil.firstDigits(number)));
 
 		if (NumberUtil.powerOf(number) >= 3) {
-			mNumberNameTextView.setVisibility(View.VISIBLE);
+			Util.setVisible(mNumberNameTextView);
+
 			mNumberNameTextView.setText(NumberUtil.powerName(number));
 		} else {
-			mNumberNameTextView.setVisibility(View.GONE);
+			Util.setGone(mNumberNameTextView);
 		}
 	}
 
@@ -132,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.option_log_out:
-				mNumberData.save(this);
+				mNumberData.save();
 				finish();
 				return true;
 			case R.id.option_reset_progress:
@@ -144,14 +170,12 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private void onResetProgressClick() {
-		final Activity activity = this;
-
 		DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				switch (which) {
 					case DialogInterface.BUTTON_POSITIVE:
-						mNumberData.clear(activity);
+						mNumberData.clear();
 						finish();
 						break;
 					case DialogInterface.BUTTON_NEGATIVE:

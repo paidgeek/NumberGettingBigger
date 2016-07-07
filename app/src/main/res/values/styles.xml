@@ -6,7 +6,7 @@
 		<!-- Customize your theme here. -->
 		<item name="colorPrimary">@color/colorPrimary</item>
 		<item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-		<item name="colorAccent">@color/colorAccent</item>
+		<item name="colorAccent">@color/color_accent</item>
 	</style>
 
 	<style name="FullscreenTheme"
@@ -21,6 +21,14 @@
 	<style name="FullscreenActionBarStyle"
 			 parent="android:Widget.Holo.ActionBar">
 		<item name="android:background">@color/black_overlay</item>
+	</style>
+
+	<style name="Translucent" parent="Translucent.Base"/>
+	<style name="InvisibleProgress">
+		<item name="android:visibility">gone</item>
+	</style>
+	<style name="Translucent.Base" parent="android:Theme.Translucent.NoTitleBar">
+		<item name="android:progressBarStyle">@style/InvisibleProgress</item>
 	</style>
 
 </resources>

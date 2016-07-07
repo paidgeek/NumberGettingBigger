@@ -1,5 +1,6 @@
 package com.moybl.topnumber.backend.model;
 
+import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Ignore;
@@ -8,6 +9,7 @@ import com.googlecode.objectify.annotation.Index;
 import java.util.Date;
 
 @Entity
+@Cache(expirationSeconds = 60 * 5)
 public class Player {
 
 	@Id
