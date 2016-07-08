@@ -28,6 +28,7 @@ import com.applovin.sdk.AppLovinAd;
 import com.applovin.sdk.AppLovinAdLoadListener;
 import com.applovin.sdk.AppLovinAdRewardListener;
 import com.moybl.topnumber.backend.TopNumberClient;
+import com.moybl.topnumber.backend.topNumber.model.Player;
 
 import org.codechimp.apprater.AppRater;
 
@@ -116,6 +117,8 @@ public class MainActivity extends AppCompatActivity {
 
 		AppRater.app_launched(this);
 		AppRater.setDarkTheme();
+
+		mIncentivizedInterstitial = AppLovinIncentivizedInterstitial.create(this);
 	}
 
 	@Override
@@ -124,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
 
 		mUpdateRunning = false;
 
-			scheduleNotificationSetup();
+		scheduleNotificationSetup();
 	}
 
 	@Override
@@ -132,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
 		super.onPause();
 
 		mNumberData.save();
+		mAdView.destroy();
 	}
 
 	private void scheduleNotificationSetup() {
@@ -176,9 +180,7 @@ public class MainActivity extends AppCompatActivity {
 			}
 		}).start();
 
-		mIncentivizedInterstitial = AppLovinIncentivizedInterstitial.create(this);
 		loadVideoAd();
-
 		cancelNotificationSetup();
 	}
 
@@ -218,6 +220,9 @@ public class MainActivity extends AppCompatActivity {
 				@Override
 				public void userRewardVerified(AppLovinAd appLovinAd, Map map) {
 					Log.d("REWARD", "rewarded");
+
+					Player p = mClient.getPlayer();
+					p.setNumber(p.getNumber() * 2.0);
 				}
 
 				@Override
@@ -281,6 +286,7 @@ public class MainActivity extends AppCompatActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.option_log_out:
+				mClient.logOut();
 				mNumberData.save();
 				finish();
 				return true;
@@ -312,6 +318,12 @@ public class MainActivity extends AppCompatActivity {
 				.setPositiveButton(getString(R.string.yes), dialogClickListener)
 				.setNegativeButton(getString(R.string.no), dialogClickListener)
 				.show();
+	}
+
+	@OnClick(R.id.btn_leaderboard)
+	void onLeaderboardClick() {
+		Intent intent = new Intent(this, LeaderboardActivity.class);
+		startActivity(intent);
 	}
 
 }

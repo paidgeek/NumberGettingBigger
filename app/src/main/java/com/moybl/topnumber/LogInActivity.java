@@ -67,6 +67,8 @@ public class LogInActivity extends Activity {
 								mLoadingIndicator.setVisibility(View.GONE);
 
 								if (result.isSuccess()) {
+									client.insertTestPlayers();
+
 									if(reset){
 										Prefs.removeAll();
 										Prefs.save();

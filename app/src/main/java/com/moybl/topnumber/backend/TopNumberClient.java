@@ -8,13 +8,24 @@ import com.google.api.client.http.HttpHeaders;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
 
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
+import com.facebook.login.LoginManager;
 import com.moybl.topnumber.R;
 import com.moybl.topnumber.backend.topNumber.TopNumber;
 import com.moybl.topnumber.backend.topNumber.model.CollectionResponsePlayer;
 import com.moybl.topnumber.backend.topNumber.model.Player;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class TopNumberClient {
@@ -98,25 +109,75 @@ public class TopNumberClient {
 		});
 	}
 
-	public void listTop(String nextPageToken, final ResultCallback<ObjectResult<CollectionResponsePlayer>> callback) {
-		doServiceCall(new ServiceCall<ObjectResult<CollectionResponsePlayer>>() {
+	public void listTop(final String nextPageToken, final ResultCallback<ListTopResult> callback) {
+		doServiceCall(new ServiceCall<ListTopResult>() {
 			@Override
-			public ObjectResult<CollectionResponsePlayer> procedure() {
+			public ListTopResult procedure() {
 				try {
 					CollectionResponsePlayer response = mTopNumber.numbers()
 							.listTop()
 							.execute();
 
-					return new ObjectResult<>(response);
+					StringBuilder ids = new StringBuilder();
+					List<Player> players = response.getItems();
+					List<PlayerModel> playerModels = new ArrayList<>();
+
+					for (int i = 0; i < players.size(); i++) {
+						Player p = players.get(i);
+						playerModels.add(new PlayerModel(p.getId(), i + 1, p.getNumber()));
+
+						if(!p.getId().startsWith("t")){
+							ids.append(p.getId());
+
+							if (i < players.size() - 1) {
+								ids.append(",");
+							}
+						}
+					}
+
+					Bundle parameters = new Bundle();
+					parameters.putString("fields", "first_name,picture{is_silhouette}");
+					parameters.putString("ids", ids.toString());
+
+					GraphRequest graphRequest = GraphRequest.newGraphPathRequest(AccessToken.getCurrentAccessToken(), "", null);
+					graphRequest.setParameters(parameters);
+					GraphResponse graphResponse = graphRequest.executeAndWait();
+
+					if(graphResponse.getError() != null){
+						Log.e("Graph", graphResponse.getError().getErrorMessage());
+					}
+
+					JSONObject data = graphResponse.getJSONObject();
+					Iterator<String> keyIterator = data.keys();
+
+					while (keyIterator.hasNext()) {
+						String userId = keyIterator.next();
+						JSONObject userData = data.getJSONObject(userId);
+						String firstName = userData.getString("first_name");
+						JSONObject pictureData = userData.getJSONObject("picture")
+								.getJSONObject("data");
+						boolean isSilhouette = pictureData.getBoolean("is_silhouette");
+
+						for (int i = 0; i < playerModels.size(); i++) {
+							PlayerModel pm = playerModels.get(i);
+
+							if (pm.getId().equals(userId)) {
+								pm.setSilhouette(isSilhouette);
+								pm.setName(firstName);
+							}
+						}
+					}
+
+					return new ListTopResult(playerModels, response.getNextPageToken());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 
-				return new ObjectResult<>();
+				return new ListTopResult();
 			}
 
 			@Override
-			public void finished(ObjectResult<CollectionResponsePlayer> result) {
+			public void finished(ListTopResult result) {
 				callback.onResult(result);
 			}
 		});
@@ -192,6 +253,17 @@ public class TopNumberClient {
 				serviceCall.finished(result);
 			}
 		}.execute();
+	}
+
+	public void logOut() {
+		new GraphRequest(AccessToken.getCurrentAccessToken(), "/me/permissions/", null, HttpMethod.DELETE, new GraphRequest
+				.Callback() {
+			@Override
+			public void onCompleted(GraphResponse graphResponse) {
+				LoginManager.getInstance()
+						.logOut();
+			}
+		}).executeAsync();
 	}
 
 }

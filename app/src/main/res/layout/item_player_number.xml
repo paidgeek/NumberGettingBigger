@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+				  android:orientation="horizontal"
+				  android:layout_width="match_parent"
+				  android:layout_height="60dp"
+				  android:background="@color/primary_dark"
+				  android:paddingTop="5dp"
+				  android:paddingBottom="5dp">
+
+	<TextView
+			android:layout_width="50dp"
+			android:layout_height="match_parent"
+			android:text="999"
+			android:id="@+id/tv_player_order"
+			android:gravity="center_vertical|center_horizontal"
+			android:textSize="18dp"
+			android:singleLine="false"/>
+	<ImageView
+			android:layout_width="50dp"
+			android:layout_height="50dp"
+			android:id="@+id/img_player_picture"
+			android:src="@drawable/com_facebook_profile_picture_blank_square"/>
+	<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:text="Player Name"
+			android:id="@+id/tv_player_name"
+			android:gravity="center_vertical"
+			android:layout_marginLeft="10dp"
+			android:textSize="18dp"/>
+	<LinearLayout
+			android:orientation="vertical"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:gravity="right"
+			android:layout_marginRight="5dp">
+		<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="match_parent"
+				android:textAppearance="?android:attr/textAppearanceLarge"
+				android:text="42.137"
+				android:id="@+id/tv_player_number"
+				android:layout_weight="1"
+				android:textSize="24dp"/>
+		<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="match_parent"
+				android:textAppearance="?android:attr/textAppearanceLarge"
+				android:id="@+id/tv_player_number_name"
+				android:layout_weight="1"
+				android:text="Thousand"
+				android:textSize="18dp"
+				android:singleLine="false"/>
+	</LinearLayout>
+</LinearLayout>

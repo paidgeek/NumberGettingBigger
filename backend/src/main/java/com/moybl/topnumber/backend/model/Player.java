@@ -17,6 +17,7 @@ public class Player {
 	private String sessionToken;
 	@Index
 	private double number;
+	private String name;
 	@Ignore
 	private long logInTime;
 
@@ -42,6 +43,14 @@ public class Player {
 
 	public void setNumber(double number) {
 		this.number = number;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public void setLogInTime(long logInTime) {

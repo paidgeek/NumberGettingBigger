@@ -48,8 +48,8 @@ public class NumbersEndpoint extends TopNumberEndpoint {
 			httpMethod = ApiMethod.HttpMethod.GET,
 			authenticators = TopNumberAuthenticator.class
 	)
-	public CollectionResponse<Player> listForPlayers(User user,
-																	 @Nullable @Named("cursor") String cursorString) throws UnauthorizedException {
+	public CollectionResponse<Player> listTop(User user,
+															@Nullable @Named("cursor") String cursorString) throws UnauthorizedException {
 		if (user == null) {
 			throw new UnauthorizedException("unauthorized");
 		}
@@ -58,7 +58,7 @@ public class NumbersEndpoint extends TopNumberEndpoint {
 				.load()
 				.type(Player.class)
 				.order("-number")
-				.limit(10);
+				.limit(20);
 
 		if (cursorString != null) {
 			query = query.startAt(Cursor.fromWebSafeString(cursorString));

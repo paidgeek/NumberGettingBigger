@@ -8,8 +8,9 @@
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:orientation="vertical"
-			android:padding="40dp"
-			android:background="@color/black_overlay">
+			android:background="@color/black_overlay"
+			android:paddingTop="40dp"
+			android:paddingBottom="40dp">
 
 		<TextView
 				android:layout_width="match_parent"
@@ -31,7 +32,7 @@
 					android:textAppearance="?android:attr/textAppearanceLarge"
 					android:text="1"
 					android:id="@+id/tv_log_in_number"
-					android:textSize="42dp"/>
+					android:textSize="36dp"/>
 			<TextView
 					android:visibility="gone"
 					android:layout_width="wrap_content"
@@ -39,7 +40,7 @@
 					android:textAppearance="?android:attr/textAppearanceLarge"
 					android:text="Thousand"
 					android:id="@+id/tv_log_in_number_name"
-					android:textSize="36dp"/>
+					android:textSize="18dp"/>
 		</LinearLayout>
 		<LinearLayout
 				android:orientation="vertical"

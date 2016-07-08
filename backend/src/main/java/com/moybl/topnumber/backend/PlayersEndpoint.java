@@ -72,9 +72,9 @@ public class PlayersEndpoint extends TopNumberEndpoint {
 		for (int i = 0; i < 100; i++) {
 			Player player = new Player();
 
-			player.setId(random.nextLong() + "");
+			player.setId("t" + Math.abs(random.nextLong()));
 			player.setSessionToken(Util.generateSessionToken());
-			player.setNumber(random.nextInt(100000));
+			player.setNumber(random.nextInt(10000));
 
 			players.add(player);
 		}

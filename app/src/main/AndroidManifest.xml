@@ -6,7 +6,7 @@
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-	<uses-permission android:name="android.permission.VIBRATE" />
+	<uses-permission android:name="android.permission.VIBRATE"/>
 
 	<application
 			android:name=".TopNumberApplication"
@@ -46,15 +46,25 @@
 				android:authorities="com.facebook.app.FacebookContentProvider1234"
 				android:exported="true"/>
 
-		<activity android:name="com.applovin.adview.AppLovinInterstitialActivity" />
+		<activity android:name="com.applovin.adview.AppLovinInterstitialActivity"/>
 		<activity android:name="com.applovin.adview.AppLovinConfirmationActivity"/>
 
 		<meta-data
 				android:name="applovin.sdk.key"
 				android:value="Tl9FIm0HaEhRXNqn93vUw2_90Bm4t6oPsyf8ifQHu6kQUTBdb57W86g9HQE8W1TNzDVgtxym1gAVDM8qRFKaL_"/>
+
 		<receiver
-				android:name="com.moybl.topnumber.AlarmReceiver"
+				android:name=".AlarmReceiver"
 				android:process=":remote"/>
+
+		<activity
+				android:name=".LeaderboardActivity"
+				android:label="@string/title_activity_leaderboard"
+				android:parentActivityName=".MainActivity">
+			<meta-data
+					android:name="android.support.PARENT_ACTIVITY"
+					android:value="com.moybl.topnumber.MainActivity"/>
+		</activity>
 	</application>
 
 </manifest>

@@ -48,7 +48,6 @@ public class SourceView {
 			@Override
 			public void onFirstClick(View v) {
 				exchange();
-				mUnlockButton.playSoundEffect(SoundEffectConstants.CLICK);
 			}
 
 			@Override
