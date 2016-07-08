@@ -18,6 +18,7 @@ public class Player {
 	@Index
 	private double number;
 	private String name;
+	private Date lastNameChangeAt;
 	@Ignore
 	private long logInTime;
 
@@ -51,6 +52,14 @@ public class Player {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Date getLastNameChangeAt() {
+		return lastNameChangeAt;
+	}
+
+	public void setLastNameChangeAt(Date lastNameChangeAt) {
+		this.lastNameChangeAt = lastNameChangeAt;
 	}
 
 	public void setLogInTime(long logInTime) {

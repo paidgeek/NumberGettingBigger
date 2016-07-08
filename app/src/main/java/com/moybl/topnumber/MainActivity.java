@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,12 +23,15 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.applovin.adview.AppLovinIncentivizedInterstitial;
 import com.applovin.sdk.AppLovinAd;
 import com.applovin.sdk.AppLovinAdLoadListener;
 import com.applovin.sdk.AppLovinAdRewardListener;
+import com.moybl.topnumber.backend.ResultCallback;
 import com.moybl.topnumber.backend.TopNumberClient;
+import com.moybl.topnumber.backend.VoidResult;
 import com.moybl.topnumber.backend.topNumber.model.Player;
 
 import org.codechimp.apprater.AppRater;
@@ -293,6 +297,9 @@ public class MainActivity extends AppCompatActivity {
 			case R.id.option_reset_progress:
 				onResetProgressClick();
 				return true;
+			case R.id.option_change_name:
+				onChangeNameClick();
+				break;
 		}
 
 		return super.onOptionsItemSelected(item);
@@ -318,6 +325,29 @@ public class MainActivity extends AppCompatActivity {
 				.setPositiveButton(getString(R.string.yes), dialogClickListener)
 				.setNegativeButton(getString(R.string.no), dialogClickListener)
 				.show();
+	}
+
+	private void onChangeNameClick() {
+		ChangeNameDialog d = new ChangeNameDialog();
+		d.setOnClickListener(new ChangeNameDialog.OnClickListener() {
+			@Override
+			public void onOkClick(String name) {
+				mClient.changeName(name, new ResultCallback<VoidResult>() {
+					@Override
+					public void onResult(@NonNull VoidResult result) {
+						if (!result.isSuccess()) {
+							Toast.makeText(getApplicationContext(), R.string.unable_to_change_name, Toast.LENGTH_LONG)
+									.show();
+						}
+					}
+				});
+			}
+
+			@Override
+			public void onCancelClick() {
+			}
+		});
+		d.show(getSupportFragmentManager(), "ChangeNameDialog");
 	}
 
 	@OnClick(R.id.btn_leaderboard)

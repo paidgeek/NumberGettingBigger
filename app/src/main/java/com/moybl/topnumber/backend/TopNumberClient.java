@@ -85,6 +85,32 @@ public class TopNumberClient {
 		});
 	}
 
+	public void changeName(final String name, final ResultCallback<VoidResult> callback) {
+		doServiceCall(new ServiceCall<VoidResult>() {
+			@Override
+			public VoidResult procedure() {
+				try {
+					mTopNumber.players()
+							.changeName(name)
+							.execute();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				return new VoidResult(false);
+			}
+
+			@Override
+			public void finished(VoidResult result) {
+				if (result.isSuccess()) {
+					mPlayer.setName(name);
+				}
+
+				callback.onResult(result);
+			}
+		});
+	}
+
 	public void insertNumber(final double number, final ResultCallback<VoidResult> callback) {
 		doServiceCall(new ServiceCall<VoidResult>() {
 			@Override
@@ -118,6 +144,10 @@ public class TopNumberClient {
 							.listTop()
 							.execute();
 
+					if(response.getItems().size() == 0){
+						return new ListTopResult();
+					}
+
 					StringBuilder ids = new StringBuilder();
 					List<Player> players = response.getItems();
 					List<PlayerModel> playerModels = new ArrayList<>();
@@ -126,14 +156,14 @@ public class TopNumberClient {
 						Player p = players.get(i);
 						playerModels.add(new PlayerModel(p.getId(), i + 1, p.getNumber()));
 
-						if(!p.getId().startsWith("t")){
-							ids.append(p.getId());
-
-							if (i < players.size() - 1) {
-								ids.append(",");
-							}
+						if (!p.getId()
+								.startsWith("t")) {
+							ids.append(p.getId())
+									.append(",");
 						}
 					}
+
+					ids.deleteCharAt(ids.length() - 1);
 
 					Bundle parameters = new Bundle();
 					parameters.putString("fields", "first_name,picture{is_silhouette}");
@@ -143,8 +173,9 @@ public class TopNumberClient {
 					graphRequest.setParameters(parameters);
 					GraphResponse graphResponse = graphRequest.executeAndWait();
 
-					if(graphResponse.getError() != null){
-						Log.e("Graph", graphResponse.getError().getErrorMessage());
+					if (graphResponse.getError() != null) {
+						Log.e("Graph", graphResponse.getError()
+								.getErrorMessage());
 					}
 
 					JSONObject data = graphResponse.getJSONObject();
@@ -161,7 +192,8 @@ public class TopNumberClient {
 						for (int i = 0; i < playerModels.size(); i++) {
 							PlayerModel pm = playerModels.get(i);
 
-							if (pm.getId().equals(userId)) {
+							if (pm.getId()
+									.equals(userId)) {
 								pm.setSilhouette(isSilhouette);
 								pm.setName(firstName);
 							}

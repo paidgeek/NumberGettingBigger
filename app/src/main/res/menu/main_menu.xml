@@ -4,4 +4,6 @@
 			android:title="@string/log_out"/>
 	<item android:id="@+id/option_reset_progress"
 			android:title="@string/reset_progress"/>
+	<item android:id="@+id/option_change_name"
+			android:title="@string/change_name"/>
 </menu>

@@ -1,6 +1,6 @@
 {
  "kind": "discovery#rpcDescription",
- "etag": "\"zRMgE0l9nVDW4S28VYYcYQF9UW4/HbTv5JCPnX0ZGx82Qy1e3vzTRGc\"",
+ "etag": "\"zRMgE0l9nVDW4S28VYYcYQF9UW4/h5uU5DbsKvyal0BVM8IeQR6m9mI\"",
  "discoveryVersion": "v1",
  "id": "topNumber:v1",
  "name": "topNumber",
@@ -93,9 +93,16 @@
     "id": {
      "type": "string"
     },
+    "lastNameChangeAt": {
+     "type": "string",
+     "format": "date-time"
+    },
     "logInTime": {
      "type": "string",
      "format": "int64"
+    },
+    "name": {
+     "type": "string"
     },
     "number": {
      "type": "number",
@@ -135,6 +142,21 @@
    "returns": {
     "$ref": "CollectionResponse_Player"
    },
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
+  "topNumber.players.changeName": {
+   "id": "topNumber.players.changeName",
+   "parameters": {
+    "name": {
+     "type": "string",
+     "required": true
+    }
+   },
+   "parameterOrder": [
+    "name"
+   ],
    "scopes": [
     "https://www.googleapis.com/auth/userinfo.email"
    ]

@@ -28,6 +28,7 @@ dependencies {
   compile 'javax.servlet:servlet-api:2.5'
     compile 'com.googlecode.objectify:objectify:5.0.3'
     compile group: 'com.google.api-client', name: 'google-api-client-appengine', version: '1.22.0'
+    compile group: 'com.github.javafaker', name: 'javafaker', version: '0.10'
 }
 
 appengine {
