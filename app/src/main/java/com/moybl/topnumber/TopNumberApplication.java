@@ -1,7 +1,10 @@
 package com.moybl.topnumber;
 
+import com.google.android.gms.ads.MobileAds;
+
 import android.app.Application;
 
+import com.applovin.sdk.AppLovinSdk;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 
@@ -13,6 +16,8 @@ public class TopNumberApplication extends Application {
 
 		FacebookSdk.sdkInitialize(getApplicationContext());
 		AppEventsLogger.activateApp(this);
+		MobileAds.initialize(getApplicationContext(), "ca-app-pub-1215267734081435~3495564103");
+		AppLovinSdk.initializeSdk(getApplicationContext());
 	}
 
 }

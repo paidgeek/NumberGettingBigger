@@ -4,6 +4,8 @@
 			 package="com.moybl.topnumber">
 
 	<uses-permission android:name="android.permission.INTERNET"/>
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
 	<application
 			android:name=".TopNumberApplication"
@@ -42,6 +44,16 @@
 				android:name="com.facebook.FacebookContentProvider"
 				android:authorities="com.facebook.app.FacebookContentProvider1234"
 				android:exported="true"/>
+
+		<activity android:name="com.applovin.adview.AppLovinInterstitialActivity"/>
+		<activity android:name="com.applovin.adview.AppLovinConfirmationActivity"/>
+
+		<meta-data
+				android:name="applovin.sdk.key"
+				android:value="Tl9FIm0HaEhRXNqn93vUw2_90Bm4t6oPsyf8ifQHu6kQUTBdb57W86g9HQE8W1TNzDVgtxym1gAVDM8qRFKaL_"/>
+		<receiver
+				android:name="com.moybl.topnumber.AlarmReceiver"
+				android:process=":remote"/>
 	</application>
 
 </manifest>

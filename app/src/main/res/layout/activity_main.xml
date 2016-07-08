@@ -1,5 +1,7 @@
 <FrameLayout
 		xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:ads="http://schemas.android.com/apk/res-auto"
+		xmlns:app="http://schemas.android.com/tools"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:background="@color/black_overlay">
@@ -8,43 +10,71 @@
 			android:layout_height="match_parent"
 			android:layout_width="match_parent">
 
-		<LinearLayout
-				android:orientation="vertical"
+		<RelativeLayout
 				android:layout_width="match_parent"
 				android:id="@+id/layout_top"
 				android:layout_height="wrap_content"
 				android:padding="20dp">
-			<TextView
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:textAppearance="?android:attr/textAppearanceLarge"
-					android:layout_gravity="center_horizontal"
-					android:gravity="center_vertical|center_horizontal"
-					android:id="@+id/tv_number"
-					android:text="42"
-					android:textSize="48dp"
-					android:textStyle="bold"/>
-			<TextView
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:textAppearance="?android:attr/textAppearanceLarge"
-					android:textSize="24dp"
-					android:id="@+id/tv_number_name"
-					android:gravity="center_horizontal"
-					android:text="Thousand"/>
-			<TextView
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:textAppearance="?android:attr/textAppearanceSmall"
-					android:text="+1/s"
-					android:id="@+id/tv_rate"
-					android:layout_gravity="center_horizontal"
-					android:layout_marginTop="5dp"/>
-		</LinearLayout>
+
+			<RelativeLayout android:layout_width="wrap_content"
+								 android:layout_height="wrap_content"
+			android:gravity="center">
+				<android.support.design.widget.FloatingActionButton
+						android:layout_width="wrap_content"
+						android:id="@+id/btn_video_ad"
+						android:layout_height="wrap_content"
+						android:layout_gravity="top|left"
+						ads:fabSize="mini"
+						android:src="@drawable/ic_filmstrip"
+						android:scaleType="centerCrop"
+				/>
+				<TextView android:layout_width="wrap_content"
+							 android:layout_height="wrap_content"
+							 android:id="@+id/tv_reward"
+							 android:textSize="18dp"
+							 android:layout_below="@id/btn_video_ad"
+							 android:text="x2"
+							 android:layout_centerInParent="true"
+							 android:textStyle="bold"/>
+			</RelativeLayout>
+
+			<LinearLayout android:layout_width="match_parent"
+							  android:layout_height="wrap_content"
+							  android:orientation="vertical">
+				<TextView
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:textAppearance="?android:attr/textAppearanceLarge"
+						android:layout_gravity="center_horizontal"
+						android:gravity="center_vertical|center_horizontal"
+						android:id="@+id/tv_number"
+						android:text="42"
+						android:textSize="36dp"
+						android:textStyle="bold"/>
+				<TextView
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:textAppearance="?android:attr/textAppearanceLarge"
+						android:textSize="18dp"
+						android:id="@+id/tv_number_name"
+						android:gravity="center_horizontal"
+						android:text="Thousand"/>
+				<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:textAppearance="?android:attr/textAppearanceSmall"
+						android:text="+1/s"
+						android:id="@+id/tv_rate"
+						android:layout_gravity="center_horizontal"
+						android:layout_marginTop="5dp"
+						android:textSize="16dp"/>
+			</LinearLayout>
+		</RelativeLayout>
 
 		<ScrollView android:layout_width="match_parent"
 						android:layout_height="match_parent"
-						android:layout_weight="1">
+						android:layout_weight="1"
+						android:paddingBottom="60dp">
 			<LinearLayout android:layout_width="match_parent"
 							  android:layout_height="wrap_content"
 							  android:layout_marginLeft="10dp"
@@ -54,4 +84,16 @@
 			</LinearLayout>
 		</ScrollView>
 	</LinearLayout>
+
+	<com.google.android.gms.ads.AdView
+			android:id="@+id/ad_banner_bottom"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_centerHorizontal="true"
+			android:layout_alignParentBottom="true"
+			ads:adSize="BANNER"
+			ads:adUnitId="@string/banner_bottom_id"
+			android:layout_gravity="bottom|center_horizontal">
+	</com.google.android.gms.ads.AdView>
+
 </FrameLayout>

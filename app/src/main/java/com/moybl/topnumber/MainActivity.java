@@ -1,11 +1,20 @@
 package com.moybl.topnumber;
 
-import android.app.Activity;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,20 +22,30 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.applovin.adview.AppLovinIncentivizedInterstitial;
+import com.applovin.sdk.AppLovinAd;
+import com.applovin.sdk.AppLovinAdLoadListener;
+import com.applovin.sdk.AppLovinAdRewardListener;
 import com.moybl.topnumber.backend.TopNumberClient;
+
+import org.codechimp.apprater.AppRater;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
+
+	private static final long VIDEO_AD_PRELOAD_DELAY = 20000;
 
 	// TODO prettify
 	private static MainActivity sInstance;
@@ -35,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
 		return sInstance;
 	}
 
+	@BindView(R.id.ad_banner_bottom)
+	AdView mAdView;
 	@BindView(R.id.tv_number)
 	TextView mNumberTextView;
 	@BindView(R.id.tv_number_name)
@@ -43,11 +64,14 @@ public class MainActivity extends AppCompatActivity {
 	LinearLayout mSourcesList;
 	@BindView(R.id.tv_rate)
 	TextView mRateTextView;
+	@BindView(R.id.btn_video_ad)
+	View mVideoAdButton;
 
 	private TopNumberClient mClient;
 	private NumberData mNumberData;
 	private List<SourceView> mSourceViews;
 	private boolean mUpdateRunning;
+	private AppLovinIncentivizedInterstitial mIIncentivizedInterstitial;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -83,13 +107,19 @@ public class MainActivity extends AppCompatActivity {
 			sourceView.setSource(source);
 			sourceView.update();
 
-			float h = (((1.0f + (float)Math.sqrt(5)) * 5.0f) * i) % 360.0f;
+			float h = (((1.0f + (float) Math.sqrt(5)) * 5.0f) * i) % 360.0f;
 			float s = Math.min(0.6f, i / (Source.COUNT * 0.4f));
 			view.setBackgroundColor(Color.HSVToColor(new float[]{h, s, 0.6f}));
 
 			mSourcesList.addView(view);
 			mSourceViews.add(sourceView);
 		}
+
+		Animation a = AnimationUtils.loadAnimation(this, R.anim.wiggle);
+		mVideoAdButton.startAnimation(a);
+
+		AppRater.app_launched(this);
+		AppRater.setDarkTheme();
 	}
 
 	@Override
@@ -98,6 +128,15 @@ public class MainActivity extends AppCompatActivity {
 
 		mUpdateRunning = false;
 		mNumberData.save();
+
+		setNotification();
+	}
+
+	private void setNotification() {
+		Intent alarmIntent = new Intent(this, AlarmReceiver.class);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+		alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 5000, pendingIntent);
 	}
 
 	@Override
@@ -124,6 +163,76 @@ public class MainActivity extends AppCompatActivity {
 				}
 			}
 		}).start();
+
+		mIIncentivizedInterstitial = AppLovinIncentivizedInterstitial.create(this);
+		loadVideoAd();
+	}
+
+	@OnClick(R.id.btn_video_ad)
+	void onVideoAdClick() {
+		showVideoAd();
+	}
+
+	private void loadVideoAd() {
+		mVideoAdButton.setVisibility(View.GONE);
+
+		mIIncentivizedInterstitial.preload(new AppLovinAdLoadListener() {
+			@Override
+			public void adReceived(AppLovinAd appLovinAd) {
+				Log.d("AppLovin", "adReceived");
+				mVideoAdButton.setVisibility(View.VISIBLE);
+			}
+
+			@Override
+			public void failedToReceiveAd(int i) {
+				Log.d("AppLovin", "failedToReceiveAd");
+
+				final Handler h = new Handler();
+				h.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						loadVideoAd();
+					}
+				}, VIDEO_AD_PRELOAD_DELAY);
+			}
+		});
+	}
+
+	private void showVideoAd() {
+		if (mIIncentivizedInterstitial.isAdReadyToDisplay()) {
+			mIIncentivizedInterstitial.show(this, new AppLovinAdRewardListener() {
+				@Override
+				public void userRewardVerified(AppLovinAd appLovinAd, Map map) {
+					Log.d("REWARD", "rewarded");
+				}
+
+				@Override
+				public void userOverQuota(AppLovinAd appLovinAd, Map map) {
+				}
+
+				@Override
+				public void userRewardRejected(AppLovinAd appLovinAd, Map map) {
+				}
+
+				@Override
+				public void validationRequestFailed(AppLovinAd appLovinAd, int i) {
+				}
+
+				@Override
+				public void userDeclinedToViewAd(AppLovinAd appLovinAd) {
+				}
+			}, null, null);
+
+			mVideoAdButton.setVisibility(View.GONE);
+		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		AdRequest adRequest = new AdRequest.Builder().build();
+		mAdView.loadAd(adRequest);
 	}
 
 	public void update() {
