@@ -60,6 +60,8 @@ public class SourceView {
 
 		MainActivity.getInstance()
 				.update();
+
+		Util.playSound(R.raw.click);
 	}
 
 	public void update() {

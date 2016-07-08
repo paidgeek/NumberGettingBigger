@@ -5,16 +5,12 @@ import com.google.android.gms.ads.AdView;
 
 import android.app.AlarmManager;
 import android.app.AlertDialog;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -71,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
 	private NumberData mNumberData;
 	private List<SourceView> mSourceViews;
 	private boolean mUpdateRunning;
-	private AppLovinIncentivizedInterstitial mIIncentivizedInterstitial;
+	private AppLovinIncentivizedInterstitial mIncentivizedInterstitial;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
 			return;
 		}
 
+		Util.setContext(this);
 		Prefs.load(this);
 		Prefs.setDouble(NumberData.KEY_NUMBER, 10e10);
 		NumberUtil.setContext(this);
@@ -127,16 +124,32 @@ public class MainActivity extends AppCompatActivity {
 		super.onStop();
 
 		mUpdateRunning = false;
-		mNumberData.save();
 
-		setNotification();
+			scheduleNotificationSetup();
 	}
 
-	private void setNotification() {
+	@Override
+	protected void onPause() {
+		super.onPause();
+
+		mNumberData.save();
+	}
+
+	private void scheduleNotificationSetup() {
 		Intent alarmIntent = new Intent(this, AlarmReceiver.class);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		alarmIntent.putExtra(AlarmReceiver.KEY_REQUEST_CODE, AlarmReceiver.SCHEDULE_SETUP);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, AlarmReceiver.SCHEDULE_SETUP, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
 		AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-		alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 5000, pendingIntent);
+		alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 10000, pendingIntent);
+	}
+
+	private void cancelNotificationSetup() {
+		Intent alarmIntent = new Intent(this, AlarmReceiver.class);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, AlarmReceiver.SCHEDULE_SETUP, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+		AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+		alarmManager.cancel(pendingIntent);
 	}
 
 	@Override
@@ -164,8 +177,10 @@ public class MainActivity extends AppCompatActivity {
 			}
 		}).start();
 
-		mIIncentivizedInterstitial = AppLovinIncentivizedInterstitial.create(this);
+		mIncentivizedInterstitial = AppLovinIncentivizedInterstitial.create(this);
 		loadVideoAd();
+
+		cancelNotificationSetup();
 	}
 
 	@OnClick(R.id.btn_video_ad)
@@ -176,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
 	private void loadVideoAd() {
 		mVideoAdButton.setVisibility(View.GONE);
 
-		mIIncentivizedInterstitial.preload(new AppLovinAdLoadListener() {
+		mIncentivizedInterstitial.preload(new AppLovinAdLoadListener() {
 			@Override
 			public void adReceived(AppLovinAd appLovinAd) {
 				Log.d("AppLovin", "adReceived");
@@ -199,8 +214,8 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private void showVideoAd() {
-		if (mIIncentivizedInterstitial.isAdReadyToDisplay()) {
-			mIIncentivizedInterstitial.show(this, new AppLovinAdRewardListener() {
+		if (mIncentivizedInterstitial.isAdReadyToDisplay()) {
+			mIncentivizedInterstitial.show(this, new AppLovinAdRewardListener() {
 				@Override
 				public void userRewardVerified(AppLovinAd appLovinAd, Map map) {
 					Log.d("REWARD", "rewarded");
