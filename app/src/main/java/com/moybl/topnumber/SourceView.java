@@ -1,5 +1,6 @@
 package com.moybl.topnumber;
 
+import android.view.SoundEffectConstants;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -39,12 +40,19 @@ public class SourceView {
 				ps.oneShot(mView, 100);
 
 				exchange();
+				mUnlockButton.playSoundEffect(SoundEffectConstants.CLICK);
 			}
 		});
 
-		mRepeatListener = new RepeatListener(500, 100, new View.OnClickListener() {
+		mRepeatListener = new RepeatListener(500, 100, new RepeatListener.OnRepeatListener() {
 			@Override
-			public void onClick(View v) {
+			public void onFirstClick(View v) {
+				exchange();
+				mUnlockButton.playSoundEffect(SoundEffectConstants.CLICK);
+			}
+
+			@Override
+			public void onRepeatClick(View v) {
 				exchange();
 			}
 		});
@@ -60,8 +68,6 @@ public class SourceView {
 
 		MainActivity.getInstance()
 				.update();
-
-		Util.playSound(R.raw.click);
 	}
 
 	public void update() {

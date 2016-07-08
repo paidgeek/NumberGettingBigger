@@ -86,7 +86,6 @@ public class MainActivity extends AppCompatActivity {
 			return;
 		}
 
-		Util.setContext(this);
 		Prefs.load(this);
 		Prefs.setDouble(NumberData.KEY_NUMBER, 10e10);
 		NumberUtil.setContext(this);

@@ -18,17 +18,23 @@ import android.view.View.OnTouchListener;
  */
 public class RepeatListener implements OnTouchListener {
 
+	public interface OnRepeatListener {
+		void onFirstClick(View v);
+
+		void onRepeatClick(View v);
+	}
+
 	private Handler handler = new Handler();
 
 	private int initialInterval;
 	private final int normalInterval;
-	private final OnClickListener clickListener;
+	private final OnRepeatListener repeatListener;
 
 	private Runnable handlerRunnable = new Runnable() {
 		@Override
 		public void run() {
 			handler.postDelayed(this, normalInterval);
-			clickListener.onClick(downView);
+			repeatListener.onRepeatClick(downView);
 		}
 	};
 
@@ -37,18 +43,18 @@ public class RepeatListener implements OnTouchListener {
 	/**
 	 * @param initialInterval The interval after first click event
 	 * @param normalInterval  The interval after second and subsequent click events
-	 * @param clickListener   The OnClickListener, that will be called periodically
+	 * @param repeatListener  The OnRepeatListener, that will be called periodically
 	 */
 	public RepeatListener(int initialInterval, int normalInterval,
-								 OnClickListener clickListener) {
-		if (clickListener == null)
+								 OnRepeatListener repeatListener) {
+		if (repeatListener == null)
 			throw new IllegalArgumentException("null runnable");
 		if (initialInterval < 0 || normalInterval < 0)
 			throw new IllegalArgumentException("negative interval");
 
 		this.initialInterval = initialInterval;
 		this.normalInterval = normalInterval;
-		this.clickListener = clickListener;
+		this.repeatListener = repeatListener;
 	}
 
 	public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -58,7 +64,7 @@ public class RepeatListener implements OnTouchListener {
 				handler.postDelayed(handlerRunnable, initialInterval);
 				downView = view;
 				downView.setPressed(true);
-				clickListener.onClick(view);
+				repeatListener.onFirstClick(view);
 				return true;
 			case MotionEvent.ACTION_UP:
 			case MotionEvent.ACTION_CANCEL:
@@ -69,10 +75,10 @@ public class RepeatListener implements OnTouchListener {
 		return false;
 	}
 
-	public void cancel(){
+	public void cancel() {
 		handler.removeCallbacks(handlerRunnable);
 
-		if(downView != null){
+		if (downView != null) {
 			downView.setPressed(false);
 			downView = null;
 		}
