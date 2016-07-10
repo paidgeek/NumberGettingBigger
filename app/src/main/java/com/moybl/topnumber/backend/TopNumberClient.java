@@ -87,27 +87,32 @@ public class TopNumberClient {
 	}
 
 	public void changeName(final String name, final ResultCallback<VoidResult> callback) {
-		doServiceCall(new ServiceCall<VoidResult>() {
+		doServiceCall(new ServiceCall<ObjectResult<Player>>() {
 			@Override
-			public VoidResult procedure() {
+			public ObjectResult<Player> procedure() {
 				try {
-					mTopNumber.players()
+					Player player = mTopNumber.players()
 							.changeName(name)
 							.execute();
+
+					return new ObjectResult<>(player);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 
-				return new VoidResult(false);
+				return new ObjectResult<>();
 			}
 
 			@Override
-			public void finished(VoidResult result) {
+			public void finished(ObjectResult<Player> result) {
 				if (result.isSuccess()) {
-					mPlayer.setName(name);
+					Player p = result.getObject();
+
+					mPlayer.setName(p.getName());
+					mPlayer.setLastNameChangeAt(p.getLastNameChangeAt());
 				}
 
-				callback.onResult(result);
+				callback.onResult(new VoidResult(result.isSuccess()));
 			}
 		});
 	}

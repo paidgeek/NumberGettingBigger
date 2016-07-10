@@ -159,11 +159,6 @@ public class LogInActivity extends Activity {
 		}).start();
 	}
 
-	@Override
-	protected void onStop() {
-		super.onStop();
-	}
-
 	@OnClick(R.id.button_log_in)
 	void onLogInClick() {
 		mLoadingIndicator.setVisibility(View.VISIBLE);

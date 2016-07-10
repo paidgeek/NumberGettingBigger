@@ -90,25 +90,6 @@ public class FriendsLeaderboardFragment extends Fragment {
 
 		mClient = TopNumberClient.getInstance();
 
-		v.findViewById(R.id.btn_invite_friends)
-				.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						String appLinkUrl, previewImageUrl;
-
-						appLinkUrl = "https://www.mydomain.com/myapplink";
-						previewImageUrl = "https://www.mydomain.com/my_invite_image.jpg";
-
-						if (AppInviteDialog.canShow()) {
-							AppInviteContent content = new AppInviteContent.Builder()
-									.setApplinkUrl(appLinkUrl)
-									.setPreviewImageUrl(previewImageUrl)
-									.build();
-							AppInviteDialog.show(getActivity(), content);
-						}
-					}
-				});
-
 		return v;
 	}
 

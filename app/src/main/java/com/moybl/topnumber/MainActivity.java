@@ -3,9 +3,7 @@ package com.moybl.topnumber;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
-import android.app.AlarmManager;
 import android.app.AlertDialog;
-import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -47,6 +45,7 @@ import butterknife.OnClick;
 public class MainActivity extends AppCompatActivity {
 
 	private static final long VIDEO_AD_PRELOAD_DELAY = 20000;
+	private static final long NAME_CHANGE_TIME_LIMIT = 24 * 60 * 1000;
 
 	// TODO prettify
 	private static MainActivity sInstance;
@@ -73,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
 	private List<SourceView> mSourceViews;
 	private boolean mUpdateRunning;
 	private AppLovinIncentivizedInterstitial mIncentivizedInterstitial;
+	private boolean mSwitched;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +91,8 @@ public class MainActivity extends AppCompatActivity {
 			return;
 		}
 
-		Prefs.load(this, mClient.getPlayer().getId());
+		Prefs.load(this, mClient.getPlayer()
+				.getId());
 		NumberUtil.setContext(this);
 		mNumberData = NumberData.getInstance();
 		mNumberData.load();
@@ -130,7 +131,10 @@ public class MainActivity extends AppCompatActivity {
 
 		mUpdateRunning = false;
 
-		AlarmController.scheduleNotificationSetup(this);
+		if (!mSwitched) {
+			AlarmController.scheduleNotificationSetup(getApplicationContext());
+		}
+		mSwitched = false;
 	}
 
 	@Override
@@ -167,7 +171,8 @@ public class MainActivity extends AppCompatActivity {
 		}).start();
 
 		loadVideoAd();
-		AlarmController.cancelNotificationSetup(this);
+
+		AlarmController.cancelNotificationSetup(getApplicationContext());
 	}
 
 	@OnClick(R.id.btn_video_ad)
@@ -272,9 +277,7 @@ public class MainActivity extends AppCompatActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.option_log_out:
-				mClient.logOut();
-				mNumberData.save();
-				finish();
+				onBackPressed();
 				return true;
 			case R.id.option_reset_progress:
 				onResetProgressClick();
@@ -285,6 +288,13 @@ public class MainActivity extends AppCompatActivity {
 		}
 
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onBackPressed() {
+		mClient.logOut();
+		mNumberData.save();
+		finish();
 	}
 
 	private void onResetProgressClick() {
@@ -310,6 +320,22 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private void onChangeNameClick() {
+		if (System.currentTimeMillis() < mClient.getPlayer()
+				.getLastNameChangeAt()
+				.getValue() + NAME_CHANGE_TIME_LIMIT) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setMessage(getString(R.string.name_change_limit_message))
+					.setCancelable(false)
+					.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+						}
+					});
+			AlertDialog alert = builder.create();
+			alert.show();
+
+			return;
+		}
+
 		ChangeNameDialog d = new ChangeNameDialog();
 		d.setOnClickListener(new ChangeNameDialog.OnClickListener() {
 			@Override
@@ -334,6 +360,8 @@ public class MainActivity extends AppCompatActivity {
 
 	@OnClick(R.id.btn_leaderboard)
 	void onLeaderboardClick() {
+		mSwitched = true;
+
 		Intent intent = new Intent(this, LeaderboardActivity.class);
 		startActivity(intent);
 	}

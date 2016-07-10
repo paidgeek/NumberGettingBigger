@@ -41,6 +41,7 @@ public class NumberData {
 	private long mLastUpdateTime;
 	private long mTimeOffset;
 	private double mRate;
+	private boolean mLoaded;
 
 	public List<Source> getSources() {
 		return mSources;
@@ -73,6 +74,12 @@ public class NumberData {
 	}
 
 	public void load() {
+		if(mLoaded){
+			return;
+		}
+
+		mLoaded = true;
+
 		mSources = new ArrayList<>();
 
 		for (int i = 0; i < Source.COUNT; i++) {

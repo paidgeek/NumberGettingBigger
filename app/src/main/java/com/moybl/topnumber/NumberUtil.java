@@ -41,7 +41,7 @@ public class NumberUtil {
 	}
 
 	public static String format(double x) {
-		if(x == Double.NaN) {
+		if (Double.isNaN(x) || Double.isInfinite(x)) {
 			return sContext.getString(R.string.infinity);
 		}
 
@@ -57,7 +57,7 @@ public class NumberUtil {
 		int power = powerOf(x);
 
 		if (power >= 3) {
-			return sDecimalFormat.format(firstDigits) + " " + powerName(x);
+			return format(firstDigits) + " " + powerName(x);
 		} else {
 			return sNumberFormat.format(x);
 		}
@@ -68,7 +68,7 @@ public class NumberUtil {
 		int power = powerOf(x);
 
 		if (power >= 3) {
-			return sDecimalFormat.format(firstDigits) + "\n" + powerName(x);
+			return format(firstDigits) + "\n" + powerName(x);
 		} else {
 			return sNumberFormat.format(x);
 		}

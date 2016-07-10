@@ -23,7 +23,7 @@ import java.util.Random;
 
 public class PlayersEndpoint extends TopNumberEndpoint {
 
-	private static final long NAME_CHANGE_TIME_LIMIT = 1 * 24 * 60 * 1000;
+	private static final long NAME_CHANGE_TIME_LIMIT = 24 * 60 * 1000;
 
 	@ApiMethod(
 			name = "players.logInWithFacebook",
@@ -49,6 +49,7 @@ public class PlayersEndpoint extends TopNumberEndpoint {
 			player.setId(playerUser.getId());
 			player.setNumber(0.0);
 			player.setName(playerUser.getName());
+			player.setLastNameChangeAt(new Date(0));
 		}
 
 		player.setSessionToken(Util.generateSessionToken());
@@ -68,7 +69,7 @@ public class PlayersEndpoint extends TopNumberEndpoint {
 			httpMethod = ApiMethod.HttpMethod.POST,
 			authenticators = TopNumberAuthenticator.class
 	)
-	public void changeName(User user,
+	public Player changeName(User user,
 								  @Named("name") String name) throws UnauthorizedException, BadRequestException {
 		if (user == null) {
 			throw new UnauthorizedException("unauthorized");
@@ -76,14 +77,18 @@ public class PlayersEndpoint extends TopNumberEndpoint {
 
 		Player player = ((PlayerUser) user).getPlayer();
 
-		if (System.currentTimeMillis() - NAME_CHANGE_TIME_LIMIT <= player.getLastNameChangeAt()
-				.getTime()) {
-			throw new BadRequestException("need to wait");
+		if(player.getLastNameChangeAt() == null){
+			player.setLastNameChangeAt(new Date(0));
+		}
+
+		if (System.currentTimeMillis() < player.getLastNameChangeAt()
+				.getTime() + NAME_CHANGE_TIME_LIMIT) {
+			throw new BadRequestException("name change limit");
 		}
 
 		name = name.trim();
 
-		if (!name.matches("^\\p{L}+[\\p{L}\\p{Z}\\p{P}]*")) {
+		if (name.length() > 50 || !name.matches("^\\p{L}+[\\p{L}\\p{Z}\\p{P}]*")) {
 			throw new BadRequestException("invalid name");
 		}
 
@@ -94,6 +99,8 @@ public class PlayersEndpoint extends TopNumberEndpoint {
 				.save()
 				.entity(player)
 				.now();
+
+		return player;
 	}
 
 	@ApiMethod(

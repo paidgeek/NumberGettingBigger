@@ -1,6 +1,6 @@
 {
  "kind": "discovery#restDescription",
- "etag": "\"zRMgE0l9nVDW4S28VYYcYQF9UW4/JFPPoxEvRVzcV4VvJDNvbVTfODk\"",
+ "etag": "\"zRMgE0l9nVDW4S28VYYcYQF9UW4/h8C9Dpq-IP53P9ueoFCfbgrAqJ0\"",
  "discoveryVersion": "v1",
  "id": "topNumber:v1",
  "name": "topNumber",
@@ -206,6 +206,9 @@
      "parameterOrder": [
       "name"
      ],
+     "response": {
+      "$ref": "Player"
+     },
      "scopes": [
       "https://www.googleapis.com/auth/userinfo.email"
      ]

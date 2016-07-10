@@ -28,4 +28,8 @@ public class Util {
 		}
 	}
 
+	public static boolean isNameValid(String name){
+		return name.length() <= 50 && name.trim().matches("\\p{L}+[\\p{L}\\p{Z}\\p{P}]*");
+	}
+
 }

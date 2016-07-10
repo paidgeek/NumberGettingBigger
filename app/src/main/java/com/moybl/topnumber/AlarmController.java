@@ -10,38 +10,68 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
+import com.moybl.topnumber.backend.TopNumberClient;
+
+import java.util.List;
+
 public class AlarmController extends WakefulBroadcastReceiver {
 
 	public static final String KEY_REQUEST_CODE = "request_code";
+	public static final String KEY_PLAYER_ID = "player_id";
 	public static final int SETUP_NOTIFICATION = 1;
 	public static final int SCHEDULE_SETUP = 2;
-
-	private static Context sContext;
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		switch (intent.getIntExtra(KEY_REQUEST_CODE, 0)) {
 			case SCHEDULE_SETUP:
-				scheduleSetup(context);
+				scheduleSetup(context, intent);
 				break;
 			case SETUP_NOTIFICATION:
-				setupNotification(context);
+				setupNotification(context, intent);
 				break;
 		}
 	}
 
-	private void scheduleSetup(Context context) {
+	private void scheduleSetup(Context context, Intent intent) {
+		//String playerId = intent.getStringExtra(KEY_PLAYER_ID);
+		//long notifyTime = calculateNotifyTime(context, playerId);
+
+		// rate * seconds = lastCost - number
+		// seconds = (lastCost - number) / rate
+
 		Intent service = new Intent(context, AlarmController.class);
 		service.putExtra(AlarmController.KEY_REQUEST_CODE, AlarmController.SETUP_NOTIFICATION);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, AlarmController.SETUP_NOTIFICATION, service, PendingIntent.FLAG_UPDATE_CURRENT);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, AlarmController.SETUP_NOTIFICATION, service, 0);
 
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-		alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 1000, pendingIntent);
+		alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 10000, pendingIntent);
 
 		startWakefulService(context, service);
 	}
 
-	private void setupNotification(Context context) {
+	private long calculateNotifyTime(Context context, String playerId){
+		Prefs.load(context, playerId);
+		NumberData numberData = NumberData.getInstance();
+		numberData.load();
+
+		List<Source> sources = numberData.getSources();
+		double rate = numberData.getRate();
+		double lastCost = 0.0;
+
+		for (int i = 0; i < sources.size(); i++) {
+			Source s = sources.get(i);
+
+			if (!s.isUnlocked()) {
+				lastCost = s.getCost();
+				break;
+			}
+		}
+
+		return System.currentTimeMillis() + (long) Math.ceil(((lastCost - numberData.getNumber()) / rate) * 1000.0);
+	}
+
+	private void setupNotification(Context context, Intent intent) {
 		Uri sound = Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.notification);
 
 		NotificationCompat.Builder mBuilder =
@@ -67,22 +97,27 @@ public class AlarmController extends WakefulBroadcastReceiver {
 	}
 
 	public static void cancelNotificationSetup(Context context) {
-		sContext = context;
-
-		Intent alarmIntent = new Intent(context, AlarmController.class);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, AlarmController.SCHEDULE_SETUP, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		PendingIntent pendingIntent = createScheduleSetupIntent(context);
 
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		alarmManager.cancel(pendingIntent);
 	}
 
-	public static void scheduleNotificationSetup() {
-		Intent alarmIntent = new Intent(sContext, AlarmController.class);
-		alarmIntent.putExtra(AlarmController.KEY_REQUEST_CODE, AlarmController.SCHEDULE_SETUP);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(sContext, AlarmController.SCHEDULE_SETUP, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+	public static void scheduleNotificationSetup(Context context) {
+		PendingIntent pendingIntent = createScheduleSetupIntent(context);
 
-		AlarmManager alarmManager = (AlarmManager) sContext.getSystemService(Context.ALARM_SERVICE);
-		alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 5000, pendingIntent);
+		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+		alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 3000, pendingIntent);
+	}
+
+	private static PendingIntent createScheduleSetupIntent(Context context) {
+		Intent intent = new Intent(context, AlarmController.class);
+		intent.putExtra(KEY_PLAYER_ID, TopNumberClient.getInstance()
+				.getPlayer()
+				.getId());
+		intent.putExtra(KEY_REQUEST_CODE, SCHEDULE_SETUP);
+
+		return PendingIntent.getBroadcast(context, SCHEDULE_SETUP, intent, 0);
 	}
 
 }

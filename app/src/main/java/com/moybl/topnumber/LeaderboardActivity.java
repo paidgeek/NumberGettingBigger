@@ -14,7 +14,10 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 
+import com.facebook.share.model.AppInviteContent;
+import com.facebook.share.widget.AppInviteDialog;
 import com.moybl.topnumber.backend.ListTopResult;
 import com.moybl.topnumber.backend.ResultCallback;
 import com.moybl.topnumber.backend.TopNumberClient;
@@ -24,6 +27,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class LeaderboardActivity extends AppCompatActivity {
 
@@ -33,6 +37,7 @@ public class LeaderboardActivity extends AppCompatActivity {
 	TabLayout mTabLayout;
 	@BindView(R.id.leaderboard_viewpager)
 	ViewPager mViewPager;
+	private boolean mSwitched;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +48,7 @@ public class LeaderboardActivity extends AppCompatActivity {
 		setSupportActionBar(mToolbar);
 		ActionBar actionBar = getSupportActionBar();
 
-		if(actionBar != null){
+		if (actionBar != null) {
 			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
 
@@ -51,18 +56,45 @@ public class LeaderboardActivity extends AppCompatActivity {
 		mTabLayout.setupWithViewPager(mViewPager);
 	}
 
+	@OnClick(R.id.btn_invite_friends)
+	void onInviteFriendsClick() {
+		String appLinkUrl, previewImageUrl;
+
+		appLinkUrl = "https://www.mydomain.com/myapplink";
+		previewImageUrl = "https://www.mydomain.com/my_invite_image.jpg";
+
+		if (AppInviteDialog.canShow()) {
+			AppInviteContent content = new AppInviteContent.Builder()
+					.setApplinkUrl(appLinkUrl)
+					.setPreviewImageUrl(previewImageUrl)
+					.build();
+			AppInviteDialog.show(this, content);
+		}
+	}
+
 	@Override
 	protected void onStart() {
 		super.onStart();
 
-		AlarmController.cancelNotificationSetup(this);
+		AlarmController.cancelNotificationSetup(getApplicationContext());
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
 
-		AlarmController.scheduleNotificationSetup(this);
+		if (!mSwitched) {
+			AlarmController.scheduleNotificationSetup(getApplicationContext());
+		}
+
+		mSwitched = false;
+	}
+
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+
+		mSwitched = true;
 	}
 
 	@Override
@@ -70,6 +102,7 @@ public class LeaderboardActivity extends AppCompatActivity {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				NavUtils.navigateUpFromSameTask(this);
+				mSwitched = true;
 				return true;
 		}
 
@@ -78,8 +111,8 @@ public class LeaderboardActivity extends AppCompatActivity {
 
 	private void setupViewPager(ViewPager viewPager) {
 		ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-		adapter.addFragment(new FriendsLeaderboardFragment(), "friends");
-		adapter.addFragment(new GlobalLeaderboardFragment(), "global");
+		adapter.addFragment(new FriendsLeaderboardFragment(), getString(R.string.friends));
+		adapter.addFragment(new GlobalLeaderboardFragment(), getString(R.string.global));
 		viewPager.setAdapter(adapter);
 	}
 

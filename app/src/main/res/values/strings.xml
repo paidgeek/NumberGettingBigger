@@ -6,7 +6,7 @@
 
 	<string name="log_out">Log out</string>
 	<string name="reset_progress">Reset progress</string>
-	<string name="reset_progress_dialog">Are you sure you want to reset progress?
+	<string name="reset_progress_dialog">Are you sure you want to reset your progress?
 	</string>
 	<string name="change_name">Change name</string>
 	<string name="yes">Yes</string>
@@ -21,4 +21,8 @@
 	<string name="ok">Ok</string>
 	<string name="infinity">Infinity</string>
 	<string name="invite_friends">Invite friends</string>
+	<string name="friends">Friends</string>
+	<string name="global">Global</string>
+	<string name="invalid_name">Invalid name</string>
+	<string name="name_change_limit_message">You can only change your name once every 24 hours.</string>
 </resources>
