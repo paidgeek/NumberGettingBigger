@@ -10,6 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.facebook.share.model.AppInviteContent;
+import com.facebook.share.widget.AppInviteDialog;
 import com.moybl.topnumber.backend.ListFriendsResult;
 import com.moybl.topnumber.backend.ResultCallback;
 import com.moybl.topnumber.backend.TopNumberClient;
@@ -20,6 +22,7 @@ public class FriendsLeaderboardFragment extends Fragment {
 	private PlayersAdapter mFriendsAdapter;
 	private TopNumberClient mClient;
 	private LinearLayoutManager mLayoutManager;
+	private View mLoadingIndicator;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -27,9 +30,13 @@ public class FriendsLeaderboardFragment extends Fragment {
 	}
 
 	private void loadNextPage() {
+		mLoadingIndicator.setVisibility(View.VISIBLE);
+
 		mClient.listFriends(new ResultCallback<ListFriendsResult>() {
 			@Override
 			public void onResult(@NonNull ListFriendsResult result) {
+				mLoadingIndicator.setVisibility(View.GONE);
+
 				if (!result.isSuccess()) {
 					return;
 				}
@@ -53,6 +60,7 @@ public class FriendsLeaderboardFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.fragment_friends_leaderboard, container, false);
 		mFriendsRecycler = (RecyclerView) v.findViewById(R.id.friends_recycler);
+		mLoadingIndicator = v.findViewById(R.id.loading_indicator);
 
 		mLayoutManager = new LinearLayoutManager(getActivity());
 		mFriendsAdapter = new PlayersAdapter(getActivity());
@@ -81,6 +89,25 @@ public class FriendsLeaderboardFragment extends Fragment {
 		});
 
 		mClient = TopNumberClient.getInstance();
+
+		v.findViewById(R.id.btn_invite_friends)
+				.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						String appLinkUrl, previewImageUrl;
+
+						appLinkUrl = "https://www.mydomain.com/myapplink";
+						previewImageUrl = "https://www.mydomain.com/my_invite_image.jpg";
+
+						if (AppInviteDialog.canShow()) {
+							AppInviteContent content = new AppInviteContent.Builder()
+									.setApplinkUrl(appLinkUrl)
+									.setPreviewImageUrl(previewImageUrl)
+									.build();
+							AppInviteDialog.show(getActivity(), content);
+						}
+					}
+				});
 
 		return v;
 	}

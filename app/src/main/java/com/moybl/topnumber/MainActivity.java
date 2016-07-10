@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
 
 		mUpdateRunning = false;
 
-		scheduleNotificationSetup();
+		AlarmController.scheduleNotificationSetup(this);
 	}
 
 	@Override
@@ -139,23 +139,6 @@ public class MainActivity extends AppCompatActivity {
 
 		mNumberData.save();
 		mAdView.destroy();
-	}
-
-	private void scheduleNotificationSetup() {
-		Intent alarmIntent = new Intent(this, AlarmReceiver.class);
-		alarmIntent.putExtra(AlarmReceiver.KEY_REQUEST_CODE, AlarmReceiver.SCHEDULE_SETUP);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, AlarmReceiver.SCHEDULE_SETUP, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-		AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-		alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 10000, pendingIntent);
-	}
-
-	private void cancelNotificationSetup() {
-		Intent alarmIntent = new Intent(this, AlarmReceiver.class);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, AlarmReceiver.SCHEDULE_SETUP, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-		AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-		alarmManager.cancel(pendingIntent);
 	}
 
 	@Override
@@ -184,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
 		}).start();
 
 		loadVideoAd();
-		cancelNotificationSetup();
+		AlarmController.cancelNotificationSetup(this);
 	}
 
 	@OnClick(R.id.btn_video_ad)

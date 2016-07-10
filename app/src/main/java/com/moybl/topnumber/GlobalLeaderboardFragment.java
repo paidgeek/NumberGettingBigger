@@ -21,6 +21,7 @@ public class GlobalLeaderboardFragment extends Fragment {
 	private TopNumberClient mClient;
 	private String mNextPageToken;
 	private LinearLayoutManager mLayoutManager;
+	private View mLoadingIndicator;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -28,9 +29,13 @@ public class GlobalLeaderboardFragment extends Fragment {
 	}
 
 	private void loadNextPage() {
+		mLoadingIndicator.setVisibility(View.VISIBLE);
+
 		mClient.listTop(mNextPageToken, new ResultCallback<ListTopResult>() {
 			@Override
 			public void onResult(@NonNull ListTopResult result) {
+				mLoadingIndicator.setVisibility(View.GONE);
+
 				if (!result.isSuccess()) {
 					return;
 				}
@@ -55,6 +60,7 @@ public class GlobalLeaderboardFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.fragment_global_leaderboard, container, false);
 		mPlayersRecycler = (RecyclerView) v.findViewById(R.id.players_recycler);
+		mLoadingIndicator = v.findViewById(R.id.loading_indicator);
 
 		mLayoutManager = new LinearLayoutManager(getActivity());
 		mPlayersAdapter = new PlayersAdapter(getActivity());

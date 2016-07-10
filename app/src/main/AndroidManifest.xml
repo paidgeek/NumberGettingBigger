@@ -54,7 +54,7 @@
             android:value="Tl9FIm0HaEhRXNqn93vUw2_90Bm4t6oPsyf8ifQHu6kQUTBdb57W86g9HQE8W1TNzDVgtxym1gAVDM8qRFKaL_" />
 
         <receiver
-            android:name=".AlarmReceiver"
+            android:name=".AlarmController"
             android:process=":remote" />
 
         <activity

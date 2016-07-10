@@ -7,6 +7,7 @@
 		<item name="colorPrimary">@color/primary</item>
 		<item name="colorPrimaryDark">@color/primary_dark</item>
 		<item name="colorAccent">@color/color_accent</item>
+		<item name="android:windowBackground">@color/primary_dark</item>
 	</style>
 
 	<style name="FullscreenTheme"
@@ -23,15 +24,18 @@
 		<item name="android:background">@color/black_overlay</item>
 	</style>
 
-	<style name="Translucent" parent="Translucent.Base"/>
+	<style name="Translucent"
+			 parent="Translucent.Base"/>
 	<style name="InvisibleProgress">
 		<item name="android:visibility">gone</item>
 	</style>
-	<style name="Translucent.Base" parent="android:Theme.Translucent.NoTitleBar">
+	<style name="Translucent.Base"
+			 parent="android:Theme.Translucent.NoTitleBar">
 		<item name="android:progressBarStyle">@style/InvisibleProgress</item>
 	</style>
 
-	<style name="AppTheme.NoActionBar" parent="AppTheme">
+	<style name="AppTheme.NoActionBar"
+			 parent="AppTheme">
 		<item name="windowNoTitle">true</item>
 		<item name="windowActionBar">false</item>
 	</style>

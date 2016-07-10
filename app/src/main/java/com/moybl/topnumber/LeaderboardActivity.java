@@ -41,10 +41,28 @@ public class LeaderboardActivity extends AppCompatActivity {
 		ButterKnife.bind(this);
 
 		setSupportActionBar(mToolbar);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		ActionBar actionBar = getSupportActionBar();
+
+		if(actionBar != null){
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		}
 
 		setupViewPager(mViewPager);
 		mTabLayout.setupWithViewPager(mViewPager);
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+
+		AlarmController.cancelNotificationSetup(this);
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+
+		AlarmController.scheduleNotificationSetup(this);
 	}
 
 	@Override
