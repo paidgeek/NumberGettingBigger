@@ -1,8 +1,5 @@
 package com.moybl.topnumber;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 
 import com.moybl.topnumber.backend.ResultCallback;

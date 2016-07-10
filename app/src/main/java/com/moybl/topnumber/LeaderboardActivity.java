@@ -1,7 +1,6 @@
 package com.moybl.topnumber;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -10,17 +9,12 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.facebook.share.model.AppInviteContent;
 import com.facebook.share.widget.AppInviteDialog;
-import com.moybl.topnumber.backend.ListTopResult;
-import com.moybl.topnumber.backend.ResultCallback;
-import com.moybl.topnumber.backend.TopNumberClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +25,12 @@ import butterknife.OnClick;
 
 public class LeaderboardActivity extends AppCompatActivity {
 
+	private static LeaderboardActivity sInstance;
+
+	public static LeaderboardActivity getInstance() {
+		return sInstance;
+	}
+
 	@BindView(R.id.leaderboard_toolbar)
 	Toolbar mToolbar;
 	@BindView(R.id.leaderboard_tabs)
@@ -38,12 +38,16 @@ public class LeaderboardActivity extends AppCompatActivity {
 	@BindView(R.id.leaderboard_viewpager)
 	ViewPager mViewPager;
 	private boolean mSwitched;
+	@BindView(R.id.loading_indicator)
+	View mLoadingIndicator;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_leaderboard);
 		ButterKnife.bind(this);
+
+		sInstance = this;
 
 		setSupportActionBar(mToolbar);
 		ActionBar actionBar = getSupportActionBar();
@@ -54,6 +58,10 @@ public class LeaderboardActivity extends AppCompatActivity {
 
 		setupViewPager(mViewPager);
 		mTabLayout.setupWithViewPager(mViewPager);
+	}
+
+	public View getLoadingIndicator() {
+		return mLoadingIndicator;
 	}
 
 	@OnClick(R.id.btn_invite_friends)

@@ -10,8 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.facebook.share.model.AppInviteContent;
-import com.facebook.share.widget.AppInviteDialog;
 import com.moybl.topnumber.backend.ListFriendsResult;
 import com.moybl.topnumber.backend.ResultCallback;
 import com.moybl.topnumber.backend.TopNumberClient;
@@ -22,7 +20,6 @@ public class FriendsLeaderboardFragment extends Fragment {
 	private PlayersAdapter mFriendsAdapter;
 	private TopNumberClient mClient;
 	private LinearLayoutManager mLayoutManager;
-	private View mLoadingIndicator;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -30,12 +27,14 @@ public class FriendsLeaderboardFragment extends Fragment {
 	}
 
 	private void loadNextPage() {
-		mLoadingIndicator.setVisibility(View.VISIBLE);
+		final View loadingIndicator = LeaderboardActivity.getInstance()
+				.getLoadingIndicator();
+		loadingIndicator.setVisibility(View.VISIBLE);
 
 		mClient.listFriends(new ResultCallback<ListFriendsResult>() {
 			@Override
 			public void onResult(@NonNull ListFriendsResult result) {
-				mLoadingIndicator.setVisibility(View.GONE);
+				loadingIndicator.setVisibility(View.GONE);
 
 				if (!result.isSuccess()) {
 					return;
@@ -60,7 +59,6 @@ public class FriendsLeaderboardFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.fragment_friends_leaderboard, container, false);
 		mFriendsRecycler = (RecyclerView) v.findViewById(R.id.friends_recycler);
-		mLoadingIndicator = v.findViewById(R.id.loading_indicator);
 
 		mLayoutManager = new LinearLayoutManager(getActivity());
 		mFriendsAdapter = new PlayersAdapter(getActivity());

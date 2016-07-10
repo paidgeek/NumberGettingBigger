@@ -3,7 +3,6 @@ package com.moybl.topnumber;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 
 // Credit: http://stackoverflow.com/questions/4284224/android-hold-button-to-repeat-action
