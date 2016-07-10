@@ -91,8 +91,7 @@ public class MainActivity extends AppCompatActivity {
 			return;
 		}
 
-		Prefs.load(this);
-		Prefs.setDouble(NumberData.KEY_NUMBER, 10e10);
+		Prefs.load(this, mClient.getPlayer().getId());
 		NumberUtil.setContext(this);
 		mNumberData = NumberData.getInstance();
 		mNumberData.load();

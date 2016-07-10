@@ -11,7 +11,9 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
+import com.facebook.FacebookAuthorizationException;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.login.LoginManager;
@@ -53,7 +55,8 @@ public class LogInActivity extends Activity {
 				.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
 					@Override
 					public void onSuccess(LoginResult loginResult) {
-						Prefs.load(getApplicationContext());
+						Prefs.load(getApplicationContext(), loginResult.getAccessToken()
+								.getUserId());
 						final boolean reset = Prefs.getBoolean(NumberData.KEY_RESET, false);
 
 						final TopNumberClient client = TopNumberClient.getInstance();
@@ -67,7 +70,7 @@ public class LogInActivity extends Activity {
 								mLoadingIndicator.setVisibility(View.GONE);
 
 								if (result.isSuccess()) {
-									if(reset){
+									if (reset) {
 										Prefs.removeAll();
 										Prefs.save();
 									}
@@ -91,6 +94,17 @@ public class LogInActivity extends Activity {
 
 					@Override
 					public void onError(FacebookException error) {
+						if (error instanceof FacebookAuthorizationException) {
+							if (AccessToken.getCurrentAccessToken() != null) {
+								LoginManager.getInstance()
+										.logOut();
+								onLogInClick();
+								return;
+							}
+						}
+
+						error.printStackTrace();
+
 						mLoadingIndicator.setVisibility(View.GONE);
 						Toast.makeText(getApplicationContext(), R.string.unable_to_log_in, Toast.LENGTH_LONG)
 								.show();

@@ -8,7 +8,7 @@ import com.google.api.client.http.HttpHeaders;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.facebook.AccessToken;
@@ -18,14 +18,15 @@ import com.facebook.HttpMethod;
 import com.facebook.login.LoginManager;
 import com.moybl.topnumber.R;
 import com.moybl.topnumber.backend.topNumber.TopNumber;
-import com.moybl.topnumber.backend.topNumber.model.CollectionResponsePlayer;
+import com.moybl.topnumber.backend.topNumber.model.ListPlayersResponse;
 import com.moybl.topnumber.backend.topNumber.model.Player;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.List;
 
 public class TopNumberClient {
@@ -57,7 +58,7 @@ public class TopNumberClient {
 								@Override
 								public void initialize(AbstractGoogleClientRequest<?> request) throws IOException {
 									HttpHeaders headers = request.getRequestHeaders();
-									headers.setAuthorization(accessToken);
+									headers.set("X-Access-Token", accessToken);
 									request.setRequestHeaders(headers);
 								}
 							})
@@ -140,67 +141,17 @@ public class TopNumberClient {
 			@Override
 			public ListTopResult procedure() {
 				try {
-					CollectionResponsePlayer response = mTopNumber.numbers()
+					ListPlayersResponse response = mTopNumber.numbers()
 							.listTop()
+							.setNextPageToken(nextPageToken)
 							.execute();
 
-					if(response.getItems().size() == 0){
+					if (response.getPlayers()
+							.size() == 0) {
 						return new ListTopResult();
 					}
 
-					StringBuilder ids = new StringBuilder();
-					List<Player> players = response.getItems();
-					List<PlayerModel> playerModels = new ArrayList<>();
-
-					for (int i = 0; i < players.size(); i++) {
-						Player p = players.get(i);
-						playerModels.add(new PlayerModel(p.getId(), i + 1, p.getNumber()));
-
-						if (!p.getId()
-								.startsWith("t")) {
-							ids.append(p.getId())
-									.append(",");
-						}
-					}
-
-					ids.deleteCharAt(ids.length() - 1);
-
-					Bundle parameters = new Bundle();
-					parameters.putString("fields", "first_name,picture{is_silhouette}");
-					parameters.putString("ids", ids.toString());
-
-					GraphRequest graphRequest = GraphRequest.newGraphPathRequest(AccessToken.getCurrentAccessToken(), "", null);
-					graphRequest.setParameters(parameters);
-					GraphResponse graphResponse = graphRequest.executeAndWait();
-
-					if (graphResponse.getError() != null) {
-						Log.e("Graph", graphResponse.getError()
-								.getErrorMessage());
-					}
-
-					JSONObject data = graphResponse.getJSONObject();
-					Iterator<String> keyIterator = data.keys();
-
-					while (keyIterator.hasNext()) {
-						String userId = keyIterator.next();
-						JSONObject userData = data.getJSONObject(userId);
-						String firstName = userData.getString("first_name");
-						JSONObject pictureData = userData.getJSONObject("picture")
-								.getJSONObject("data");
-						boolean isSilhouette = pictureData.getBoolean("is_silhouette");
-
-						for (int i = 0; i < playerModels.size(); i++) {
-							PlayerModel pm = playerModels.get(i);
-
-							if (pm.getId()
-									.equals(userId)) {
-								pm.setSilhouette(isSilhouette);
-								pm.setName(firstName);
-							}
-						}
-					}
-
-					return new ListTopResult(playerModels, response.getNextPageToken());
+					return new ListTopResult(response.getPlayers(), response.getNextPageToken());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -213,6 +164,84 @@ public class TopNumberClient {
 				callback.onResult(result);
 			}
 		});
+	}
+
+	public void listPlayers(final List<String> playerIds, final ResultCallback<ObjectResult<List<Player>>> callback) {
+		doServiceCall(new ServiceCall<ObjectResult<List<Player>>>() {
+			@Override
+			public ObjectResult<List<Player>> procedure() {
+				try {
+					StringBuilder playerIdsList = new StringBuilder();
+
+					for (int i = 0; i < playerIds.size(); i++) {
+						playerIdsList.append(playerIds.get(i));
+
+						if (i < playerIds.size() - 1) {
+							playerIdsList.append(',');
+						}
+					}
+
+					List<Player> players = mTopNumber.numbers()
+							.listPlayers(playerIdsList.toString())
+							.execute()
+							.getItems();
+
+					return new ObjectResult<>(players);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				return new ObjectResult<>();
+			}
+
+			@Override
+			public void finished(ObjectResult<List<Player>> result) {
+				callback.onResult(result);
+			}
+		});
+	}
+
+	public void listFriends(final ResultCallback<ListFriendsResult> callback) {
+		new GraphRequest(
+				AccessToken.getCurrentAccessToken(),
+				"/me/friends",
+				null,
+				HttpMethod.GET,
+				new GraphRequest.Callback() {
+					public void onCompleted(final GraphResponse response) {
+						if (response.getError() != null) {
+							Log.e("Graph", response.getError()
+									.getErrorMessage());
+							callback.onResult(new ListFriendsResult());
+							return;
+						}
+
+						JSONArray friendsData = response.getJSONObject()
+								.optJSONArray("data");
+						List<String> playerIds = new ArrayList<>();
+
+						for (int i = 0; i < friendsData.length(); i++) {
+							JSONObject friendData = friendsData.optJSONObject(i);
+
+							playerIds.add(friendData.optString("id"));
+						}
+
+						// TODO: remove
+						playerIds.addAll(Arrays.asList("100003233160538", "t406882518659246325", "t1865223393713574978"));
+
+						listPlayers(playerIds, new ResultCallback<ObjectResult<List<Player>>>() {
+							@Override
+							public void onResult(@NonNull ObjectResult<List<Player>> result) {
+								if (result.isSuccess()) {
+									callback.onResult(new ListFriendsResult(result.getObject()));
+								} else {
+									callback.onResult(new ListFriendsResult());
+								}
+							}
+						});
+					}
+				}
+		).executeAsync();
 	}
 
 	public void insertTestPlayers() {

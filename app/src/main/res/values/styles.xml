@@ -31,4 +31,9 @@
 		<item name="android:progressBarStyle">@style/InvisibleProgress</item>
 	</style>
 
+	<style name="AppTheme.NoActionBar" parent="AppTheme">
+		<item name="windowNoTitle">true</item>
+		<item name="windowActionBar">false</item>
+	</style>
+
 </resources>

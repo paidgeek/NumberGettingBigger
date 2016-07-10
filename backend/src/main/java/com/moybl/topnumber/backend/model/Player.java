@@ -22,6 +22,10 @@ public class Player {
 	@Ignore
 	private long logInTime;
 
+	public Player() {
+		lastNameChangeAt = new Date(0);
+	}
+
 	public void setId(String id) {
 		this.id = id;
 	}

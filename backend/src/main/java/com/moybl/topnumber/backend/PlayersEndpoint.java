@@ -110,12 +110,12 @@ public class PlayersEndpoint extends TopNumberEndpoint {
 		Random random = new Random();
 		Faker faker = new Faker();
 
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 10000; i++) {
 			Player player = new Player();
 
 			player.setId("t" + Math.abs(random.nextLong()));
 			player.setSessionToken(Util.generateSessionToken());
-			player.setNumber(random.nextInt(10000));
+			player.setNumber(random.nextInt(100000));
 			player.setName(faker.name()
 					.firstName());
 

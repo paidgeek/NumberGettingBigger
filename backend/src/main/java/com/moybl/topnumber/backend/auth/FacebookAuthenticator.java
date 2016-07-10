@@ -27,13 +27,15 @@ import javax.servlet.http.HttpServletRequest;
 
 public class FacebookAuthenticator implements Authenticator {
 
+	private static Logger logger = Logger.getLogger(FacebookAuthenticator.class.getName());
+
 	@Override
 	public User authenticate(HttpServletRequest request) {
-		String accessToken = request.getHeader("Authorization");
+		String accessToken = request.getHeader("X-Access-Token");
 
 		if (accessToken != null) {
 			try {
-				String batch = URLEncoder.encode(String.format("[{\"method\":\"GET\",\"relative_url\":\"me?fields=first_name\"},{\"method\":\"GET\",\"relative_url\":\"debug_token?input_token=%s\"}]", accessToken), "UTF-8");
+				String batch = URLEncoder.encode(String.format("[{\"method\":\"GET\",\"relative_url\":\"me?fields=first_name\"},{\"method\":\"GET\",\"relative_url\":\"debug_token?input_token=%s&access_token=%s\"}]", accessToken, Constants.FACEBOOK_APP_ACCESS_TOKEN), "UTF-8");
 				String params = String.format("batch=%s&access_token=%s", batch, accessToken);
 				URL url = new URL("https://graph.facebook.com/v2.6");
 
@@ -90,6 +92,8 @@ public class FacebookAuthenticator implements Authenticator {
 
 				return new PlayerUser(player);
 			} catch (Exception e) {
+				logger.severe(e.getMessage());
+
 				return null;
 			}
 		}

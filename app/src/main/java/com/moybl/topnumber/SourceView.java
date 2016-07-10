@@ -40,7 +40,6 @@ public class SourceView {
 				ps.oneShot(mView, 100);
 
 				exchange();
-				mUnlockButton.playSoundEffect(SoundEffectConstants.CLICK);
 			}
 		});
 

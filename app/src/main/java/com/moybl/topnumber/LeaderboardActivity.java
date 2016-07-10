@@ -1,25 +1,23 @@
 package com.moybl.topnumber;
 
-import android.app.ActionBar;
 import android.os.Bundle;
-import android.app.Activity;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.NavUtils;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.View;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 
-import com.facebook.AccessToken;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.internal.GraphUtil;
-import com.moybl.topnumber.R;
 import com.moybl.topnumber.backend.ListTopResult;
-import com.moybl.topnumber.backend.ObjectResult;
 import com.moybl.topnumber.backend.ResultCallback;
 import com.moybl.topnumber.backend.TopNumberClient;
-import com.moybl.topnumber.backend.topNumber.model.CollectionResponsePlayer;
-import com.moybl.topnumber.backend.topNumber.model.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,14 +25,14 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class LeaderboardActivity extends Activity {
+public class LeaderboardActivity extends AppCompatActivity {
 
-	@BindView(R.id.players_recycler)
-	RecyclerView mPlayersRecycler;
-	private PlayersAdapter mPlayersAdapter;
-	private TopNumberClient mClient;
-	private String mNextPageToken;
-	private LinearLayoutManager mLayoutManager;
+	@BindView(R.id.leaderboard_toolbar)
+	Toolbar mToolbar;
+	@BindView(R.id.leaderboard_tabs)
+	TabLayout mTabLayout;
+	@BindView(R.id.leaderboard_viewpager)
+	ViewPager mViewPager;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,58 +40,60 @@ public class LeaderboardActivity extends Activity {
 		setContentView(R.layout.activity_leaderboard);
 		ButterKnife.bind(this);
 
-		ActionBar actionBar = getActionBar();
+		setSupportActionBar(mToolbar);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-		if (actionBar != null) {
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		}
-
-		mLayoutManager = new LinearLayoutManager(this);
-		mPlayersAdapter = new PlayersAdapter(this);
-
-		mPlayersRecycler.setLayoutManager(mLayoutManager);
-		mPlayersRecycler.addItemDecoration(new VerticalSpaceItemDecoration(10));
-		mPlayersRecycler.setAdapter(mPlayersAdapter);
-		mPlayersRecycler.setOnScrollListener(new RecyclerView.OnScrollListener() {
-			@Override
-			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-				if (dy > 0) {
-					int childCount = mLayoutManager.getChildCount();
-					int totalCount = mLayoutManager.getItemCount();
-					int firstVisible = mLayoutManager.findFirstVisibleItemPosition();
-
-					if ((childCount + firstVisible) >= totalCount) {
-						loadNextPage();
-					}
-				}
-			}
-		});
-
-		mClient = TopNumberClient.getInstance();
+		setupViewPager(mViewPager);
+		mTabLayout.setupWithViewPager(mViewPager);
 	}
 
 	@Override
-	protected void onStart() {
-		super.onStart();
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				NavUtils.navigateUpFromSameTask(this);
+				return true;
+		}
 
-		loadNextPage();
+		return super.onOptionsItemSelected(item);
 	}
 
-	private void loadNextPage() {
-		mClient.listTop(mNextPageToken, new ResultCallback<ListTopResult>() {
-			@Override
-			public void onResult(@NonNull ListTopResult result) {
-				if (!result.isSuccess()) {
-					finish();
-					return;
-				}
+	private void setupViewPager(ViewPager viewPager) {
+		ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+		adapter.addFragment(new FriendsLeaderboardFragment(), "friends");
+		adapter.addFragment(new GlobalLeaderboardFragment(), "global");
+		viewPager.setAdapter(adapter);
+	}
 
-				mPlayersAdapter.getPlayers()
-						.addAll(result.getPlayers());
-				mPlayersAdapter.notifyDataSetChanged();
-				mNextPageToken = result.getNextPageToken();
-			}
-		});
+	class ViewPagerAdapter extends FragmentPagerAdapter {
+
+		private final List<Fragment> mFragmentList = new ArrayList<>();
+		private final List<String> mFragmentTitleList = new ArrayList<>();
+
+		public ViewPagerAdapter(FragmentManager manager) {
+			super(manager);
+		}
+
+		@Override
+		public Fragment getItem(int position) {
+			return mFragmentList.get(position);
+		}
+
+		@Override
+		public int getCount() {
+			return mFragmentList.size();
+		}
+
+		public void addFragment(Fragment fragment, String title) {
+			mFragmentList.add(fragment);
+			mFragmentTitleList.add(title);
+		}
+
+		@Override
+		public CharSequence getPageTitle(int position) {
+			return mFragmentTitleList.get(position);
+		}
+
 	}
 
 }

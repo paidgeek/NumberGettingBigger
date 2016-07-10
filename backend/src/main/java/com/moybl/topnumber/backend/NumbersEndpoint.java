@@ -4,21 +4,25 @@ import com.google.api.server.spi.auth.common.User;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.Named;
 import com.google.api.server.spi.config.Nullable;
-import com.google.api.server.spi.response.CollectionResponse;
+import com.google.api.server.spi.response.BadRequestException;
 import com.google.api.server.spi.response.UnauthorizedException;
 import com.google.appengine.api.datastore.Cursor;
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.QueryResultIterator;
-import com.google.appengine.repackaged.com.google.datastore.v1.Datastore;
+import com.google.appengine.repackaged.org.codehaus.jackson.map.ObjectMapper;
 
 import com.googlecode.objectify.cmd.Query;
 import com.moybl.topnumber.backend.auth.PlayerUser;
 import com.moybl.topnumber.backend.auth.TopNumberAuthenticator;
+import com.moybl.topnumber.backend.model.ListPlayersResponse;
 import com.moybl.topnumber.backend.model.Player;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 public class NumbersEndpoint extends TopNumberEndpoint {
 
@@ -48,8 +52,8 @@ public class NumbersEndpoint extends TopNumberEndpoint {
 			httpMethod = ApiMethod.HttpMethod.GET,
 			authenticators = TopNumberAuthenticator.class
 	)
-	public CollectionResponse<Player> listTop(User user,
-															@Nullable @Named("cursor") String cursorString) throws UnauthorizedException {
+	public ListPlayersResponse listTop(User user,
+												  @Nullable @Named("nextPageToken") String nextPageToken) throws UnauthorizedException {
 		if (user == null) {
 			throw new UnauthorizedException("unauthorized");
 		}
@@ -58,10 +62,10 @@ public class NumbersEndpoint extends TopNumberEndpoint {
 				.load()
 				.type(Player.class)
 				.order("-number")
-				.limit(20);
+				.limit(30);
 
-		if (cursorString != null) {
-			query = query.startAt(Cursor.fromWebSafeString(cursorString));
+		if (nextPageToken != null) {
+			query = query.startAt(Cursor.fromWebSafeString(nextPageToken));
 		}
 
 		List<Player> players = new ArrayList<>();
@@ -71,11 +75,39 @@ public class NumbersEndpoint extends TopNumberEndpoint {
 			players.add(i.next());
 		}
 
-		Cursor cursor = i.getCursor();
+		return new ListPlayersResponse(players, i.getCursor()
+				.toWebSafeString());
+	}
 
-		return CollectionResponse.<Player>builder().setItems(players)
-				.setNextPageToken(cursor.toWebSafeString())
-				.build();
+	@ApiMethod(
+			name = "numbers.listPlayers",
+			httpMethod = ApiMethod.HttpMethod.POST,
+			authenticators = TopNumberAuthenticator.class
+	)
+	public List<Player> listPlayers(User user, @Named("playerIds") String playerIdsList) throws UnauthorizedException, BadRequestException {
+		if (user == null) {
+			throw new UnauthorizedException("unauthorized");
+		}
+
+		String[] playerIds = playerIdsList.split(",");
+
+		if (playerIds.length == 0) {
+			throw new BadRequestException("no player ids specified");
+		}
+
+		Collection<Player> result = OfyService.ofy()
+				.load()
+				.type(Player.class)
+				.ids(playerIds)
+				.values();
+		Iterator<Player> resultIterator = result.iterator();
+		List<Player> players = new ArrayList<>(result.size());
+
+		while (resultIterator.hasNext()) {
+			players.add(resultIterator.next());
+		}
+
+		return players;
 	}
 
 }

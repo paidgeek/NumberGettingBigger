@@ -1,6 +1,6 @@
 {
  "kind": "discovery#restDescription",
- "etag": "\"zRMgE0l9nVDW4S28VYYcYQF9UW4/h5uU5DbsKvyal0BVM8IeQR6m9mI\"",
+ "etag": "\"zRMgE0l9nVDW4S28VYYcYQF9UW4/JFPPoxEvRVzcV4VvJDNvbVTfODk\"",
  "discoveryVersion": "v1",
  "id": "topNumber:v1",
  "name": "topNumber",
@@ -73,18 +73,18 @@
   }
  },
  "schemas": {
-  "CollectionResponse_Player": {
-   "id": "CollectionResponse_Player",
+  "ListPlayersResponse": {
+   "id": "ListPlayersResponse",
    "type": "object",
    "properties": {
-    "items": {
+    "nextPageToken": {
+     "type": "string"
+    },
+    "players": {
      "type": "array",
      "items": {
       "$ref": "Player"
      }
-    },
-    "nextPageToken": {
-     "type": "string"
     }
    }
   },
@@ -114,6 +114,18 @@
      "type": "string"
     }
    }
+  },
+  "PlayerCollection": {
+   "id": "PlayerCollection",
+   "type": "object",
+   "properties": {
+    "items": {
+     "type": "array",
+     "items": {
+      "$ref": "Player"
+     }
+    }
+   }
   }
  },
  "resources": {
@@ -138,18 +150,39 @@
       "https://www.googleapis.com/auth/userinfo.email"
      ]
     },
+    "listPlayers": {
+     "id": "topNumber.numbers.listPlayers",
+     "path": "player/{playerIds}",
+     "httpMethod": "POST",
+     "parameters": {
+      "playerIds": {
+       "type": "string",
+       "required": true,
+       "location": "path"
+      }
+     },
+     "parameterOrder": [
+      "playerIds"
+     ],
+     "response": {
+      "$ref": "PlayerCollection"
+     },
+     "scopes": [
+      "https://www.googleapis.com/auth/userinfo.email"
+     ]
+    },
     "listTop": {
      "id": "topNumber.numbers.listTop",
-     "path": "player",
+     "path": "listTop",
      "httpMethod": "GET",
      "parameters": {
-      "cursor": {
+      "nextPageToken": {
        "type": "string",
        "location": "query"
       }
      },
      "response": {
-      "$ref": "CollectionResponse_Player"
+      "$ref": "ListPlayersResponse"
      },
      "scopes": [
       "https://www.googleapis.com/auth/userinfo.email"

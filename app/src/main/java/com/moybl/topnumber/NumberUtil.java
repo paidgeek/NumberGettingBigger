@@ -41,6 +41,10 @@ public class NumberUtil {
 	}
 
 	public static String format(double x) {
+		if(x == Double.NaN) {
+			return sContext.getString(R.string.infinity);
+		}
+
 		return sDecimalFormat.format(x);
 	}
 

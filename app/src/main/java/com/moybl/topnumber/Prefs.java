@@ -13,12 +13,13 @@ public class Prefs {
 	private static final String FILE_NAME = "prefs";
 	private static JSONObject sValues;
 	private static Context sContext;
+	private static String sPlayerId;
 
 	public static void save() {
 		Log.d("PREFS", sValues.toString());
 
 		try {
-			OutputStream os = sContext.openFileOutput(FILE_NAME, Context.MODE_PRIVATE);
+			OutputStream os = sContext.openFileOutput(FILE_NAME + sPlayerId, Context.MODE_PRIVATE);
 			os.write(sValues.toString()
 					.getBytes());
 			os.close();
@@ -35,19 +36,18 @@ public class Prefs {
 		sValues = new JSONObject();
 	}
 
-	public static void load(Context context) {
+	public static void load(Context context, String playerId) {
 		sContext = context;
+		sPlayerId = playerId;
 
 		try {
-			InputStream is = sContext.openFileInput(FILE_NAME);
+			InputStream is = sContext.openFileInput(FILE_NAME + sPlayerId);
 			byte[] buf = new byte[is.available()];
 			is.read(buf);
 			is.close();
 
 			sValues = new JSONObject(new String(buf));
 		} catch (Exception e) {
-			e.printStackTrace();
-
 			sValues = new JSONObject();
 		}
 
