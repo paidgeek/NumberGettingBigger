@@ -14,9 +14,12 @@
 				android:layout_height="wrap_content"
 				android:padding="20dp">
 
-			<RelativeLayout android:layout_width="wrap_content"
-								 android:layout_height="wrap_content"
-								 android:gravity="center">
+			<LinearLayout
+					android:orientation="vertical"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentLeft="true"
+					android:id="@+id/video_ad_layout">
 				<android.support.design.widget.FloatingActionButton
 						android:layout_width="wrap_content"
 						android:id="@+id/btn_video_ad"
@@ -26,15 +29,20 @@
 						android:scaleType="centerCrop"
 						android:layout_alignParentLeft="true"
 						android:tint="@android:color/black"/>
-				<TextView android:layout_width="wrap_content"
-							 android:layout_height="wrap_content"
-							 android:id="@+id/tv_reward"
-							 android:textSize="18dp"
-							 android:layout_below="@id/btn_video_ad"
-							 android:text="x2"
-							 android:layout_centerInParent="true"
-							 android:textStyle="bold"/>
-			</RelativeLayout>
+				<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:textAppearance="?android:attr/textAppearanceMedium"
+						android:layout_below="@+id/btn_video_ad"
+						android:text="2x"
+						android:id="@+id/textView3"
+						android:layout_alignWithParentIfMissing="false"
+						android:layout_alignParentLeft="false"
+						android:layout_alignParentBottom="false"
+						android:layout_alignParentTop="false"
+						android:layout_gravity="center_horizontal"
+						android:textStyle="bold"/>
+			</LinearLayout>
 
 			<android.support.design.widget.FloatingActionButton
 					android:layout_width="wrap_content"

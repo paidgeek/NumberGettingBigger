@@ -2,52 +2,62 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 				  android:orientation="horizontal"
 				  android:layout_width="match_parent"
-				  android:layout_height="60dp"
+				  android:layout_height="wrap_content"
 				  android:paddingTop="5dp"
-				  android:paddingBottom="5dp">
+				  android:weightSum="12"
+				  android:paddingBottom="5dp"
+				  android:paddingRight="10dp">
 
-	<TextView
-			android:layout_width="50dp"
+	<com.moybl.topnumber.AutoResizeTextView
+			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:text="999"
+			android:ellipsize="none"
+			android:maxLines="1"
 			android:id="@+id/tv_player_order"
 			android:gravity="center_vertical|center_horizontal"
 			android:textSize="18dp"
-			android:singleLine="false"/>
+			android:layout_weight="5"
+			android:padding="5dp"/>
 	<ImageView
 			android:layout_width="50dp"
 			android:layout_height="50dp"
 			android:id="@+id/img_player_picture"
-			android:src="@drawable/com_facebook_profile_picture_blank_square"/>
-	<TextView
-			android:layout_width="wrap_content"
+			android:src="@drawable/com_facebook_profile_picture_blank_square"
+			android:layout_gravity="center_vertical"
+	/>
+	<com.moybl.topnumber.AutoResizeTextView
+			android:layout_width="match_parent"
 			android:layout_height="match_parent"
+			android:ellipsize="none"
 			android:textAppearance="?android:attr/textAppearanceLarge"
-			android:text="Player Name"
+			android:gravity="left|center_vertical"
+			android:maxLines="1"
 			android:id="@+id/tv_player_name"
-			android:gravity="center_vertical"
-			android:layout_marginLeft="10dp"
-			android:textSize="18dp"/>
+			android:text="Player Name"
+			android:textSize="18dp"
+			android:layout_weight="3"
+			android:paddingLeft="10dp"/>
+
 	<LinearLayout
 			android:orientation="vertical"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_weight="4"
 			android:gravity="right"
-			android:layout_marginRight="10dp">
+			android:layout_gravity="center_vertical">
 		<TextView
 				android:layout_width="wrap_content"
-				android:layout_height="match_parent"
+				android:layout_height="wrap_content"
 				android:textAppearance="?android:attr/textAppearanceLarge"
-				android:text="42.137"
+				android:text="42.321"
 				android:id="@+id/tv_player_number"
-				android:layout_weight="1"
 				android:textSize="24dp"/>
 		<TextView
 				android:layout_width="wrap_content"
-				android:layout_height="match_parent"
+				android:layout_height="wrap_content"
 				android:textAppearance="?android:attr/textAppearanceLarge"
 				android:id="@+id/tv_player_number_name"
-				android:layout_weight="1"
 				android:text="Thousand"
 				android:textSize="18dp"
 				android:singleLine="false"/>

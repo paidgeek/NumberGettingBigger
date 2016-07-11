@@ -47,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
 	private static final long VIDEO_AD_PRELOAD_DELAY = 20000;
 	private static final long NAME_CHANGE_TIME_LIMIT = 24 * 60 * 1000;
 
-	// TODO prettify
 	private static MainActivity sInstance;
 
 	public static MainActivity getInstance() {
@@ -66,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
 	TextView mRateTextView;
 	@BindView(R.id.btn_video_ad)
 	View mVideoAdButton;
+	@BindView(R.id.video_ad_layout)
+	View mVideoAdLayout;
 
 	private TopNumberClient mClient;
 	private NumberData mNumberData;
@@ -181,13 +182,13 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private void loadVideoAd() {
-		mVideoAdButton.setVisibility(View.GONE);
+		mVideoAdLayout.setVisibility(View.GONE);
 
 		mIncentivizedInterstitial.preload(new AppLovinAdLoadListener() {
 			@Override
 			public void adReceived(AppLovinAd appLovinAd) {
 				Log.d("AppLovin", "adReceived");
-				mVideoAdButton.setVisibility(View.VISIBLE);
+				mVideoAdLayout.setVisibility(View.VISIBLE);
 			}
 
 			@Override
@@ -233,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
 				}
 			}, null, null);
 
-			mVideoAdButton.setVisibility(View.GONE);
+			mVideoAdLayout.setVisibility(View.GONE);
 		}
 	}
 

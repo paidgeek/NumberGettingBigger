@@ -13,6 +13,11 @@ import android.view.ViewGroup;
 import com.moybl.topnumber.backend.ListFriendsResult;
 import com.moybl.topnumber.backend.ResultCallback;
 import com.moybl.topnumber.backend.TopNumberClient;
+import com.moybl.topnumber.backend.topNumber.model.Player;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class FriendsLeaderboardFragment extends Fragment {
 
@@ -26,7 +31,7 @@ public class FriendsLeaderboardFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 	}
 
-	private void loadNextPage() {
+	private void load() {
 		final View loadingIndicator = LeaderboardActivity.getInstance()
 				.getLoadingIndicator();
 		loadingIndicator.setVisibility(View.VISIBLE);
@@ -40,8 +45,18 @@ public class FriendsLeaderboardFragment extends Fragment {
 					return;
 				}
 
+				List<Player> friends = result.getFriends();
+				friends.add(mClient.getPlayer());
+				Collections.sort(friends, new Comparator<Player>() {
+					@Override
+					public int compare(Player lhs, Player rhs) {
+						return rhs.getNumber().compareTo(lhs.getNumber());
+					}
+				});
+
 				mFriendsAdapter.getPlayers()
-						.addAll(result.getFriends());
+						.clear();
+				mFriendsAdapter.getPlayers().addAll(friends);
 				mFriendsAdapter.notifyDataSetChanged();
 			}
 		});
@@ -51,7 +66,7 @@ public class FriendsLeaderboardFragment extends Fragment {
 	public void onStart() {
 		super.onStart();
 
-		loadNextPage();
+		load();
 	}
 
 	@Nullable
@@ -80,7 +95,7 @@ public class FriendsLeaderboardFragment extends Fragment {
 					int firstVisible = mLayoutManager.findFirstVisibleItemPosition();
 
 					if ((childCount + firstVisible) >= totalCount) {
-						loadNextPage();
+						load();
 					}
 				}
 			}

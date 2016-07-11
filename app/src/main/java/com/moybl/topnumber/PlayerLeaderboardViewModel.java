@@ -1,11 +1,11 @@
 package com.moybl.topnumber;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.moybl.topnumber.backend.TopNumberClient;
 import com.moybl.topnumber.backend.topNumber.model.Player;
 import com.squareup.picasso.Picasso;
 
@@ -27,16 +27,7 @@ public class PlayerLeaderboardViewModel extends RecyclerView.ViewHolder {
 				.placeholder(R.drawable.com_facebook_profile_picture_blank_square)
 				.into(picture);
 
-		String orderText = NumberUtil.format(position + 1);
-		orderTextView.setText(orderText);
-		int ts = 18;
-
-		if (orderText.length() > 3) {
-			int o = orderText.length() - 3;
-			ts -= 2 * o;
-		}
-
-		orderTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, ts);
+		orderTextView.setText(NumberUtil.format(position + 1));
 
 		nameTextView.setText(player.getName());
 		numberTextView.setText(NumberUtil.format(NumberUtil.firstDigits(player.getNumber())));
@@ -47,6 +38,12 @@ public class PlayerLeaderboardViewModel extends RecyclerView.ViewHolder {
 			numberNameTextView.setText(NumberUtil.powerName(player.getNumber()));
 		} else {
 			Util.setGone(numberNameTextView);
+		}
+
+		if(player.getId().equals(TopNumberClient.getInstance().getPlayer().getId())){
+			itemView.setBackgroundResource(R.color.highlight_dark);
+		} else {
+			itemView.setBackgroundResource(R.color.primary_dark);
 		}
 	}
 

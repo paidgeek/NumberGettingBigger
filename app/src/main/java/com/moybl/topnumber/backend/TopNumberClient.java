@@ -27,6 +27,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class TopNumberClient {
@@ -190,6 +192,13 @@ public class TopNumberClient {
 							.listPlayers(playerIdsList.toString())
 							.execute()
 							.getItems();
+
+					Collections.sort(players, new Comparator<Player>() {
+						@Override
+						public int compare(Player lhs, Player rhs) {
+							return rhs.getNumber().compareTo(lhs.getNumber());
+						}
+					});
 
 					return new ObjectResult<>(players);
 				} catch (Exception e) {

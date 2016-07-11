@@ -105,15 +105,8 @@ public class NumberData {
 	}
 
 	public void clear() {
-		for (int i = 0; i < Source.COUNT; i++) {
-			Prefs.remove(KEY_SOURCE_LEVEL + i);
-			Prefs.remove(KEY_SOURCE_UNLOCKED + i);
-		}
-
-		Prefs.remove(KEY_NUMBER);
-		Prefs.remove(KEY_LAST_UPDATE_TIME);
+		Prefs.removeAll();
 		Prefs.setBoolean(KEY_RESET, true);
-
 		Prefs.save();
 	}
 
