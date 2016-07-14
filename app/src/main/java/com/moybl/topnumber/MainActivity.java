@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
 			return;
 		}
 
-		Prefs.load(this, mClient.getPlayer()
+		Prefs.load(getApplicationContext(), mClient.getPlayer()
 				.getId());
 		NumberUtil.setContext(this);
 		mNumberData = NumberData.getInstance();
@@ -304,6 +304,7 @@ public class MainActivity extends AppCompatActivity {
 			public void onClick(DialogInterface dialog, int which) {
 				switch (which) {
 					case DialogInterface.BUTTON_POSITIVE:
+						mClient.logOut();
 						mNumberData.clear();
 						finish();
 						break;

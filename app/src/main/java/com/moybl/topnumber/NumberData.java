@@ -38,7 +38,6 @@ public class NumberData {
 	private long mLastUpdateTime;
 	private long mTimeOffset;
 	private double mRate;
-	private boolean mLoaded;
 
 	public List<Source> getSources() {
 		return mSources;
@@ -71,12 +70,6 @@ public class NumberData {
 	}
 
 	public void load() {
-		if(mLoaded){
-			return;
-		}
-
-		mLoaded = true;
-
 		mSources = new ArrayList<>();
 
 		for (int i = 0; i < Source.COUNT; i++) {
@@ -135,8 +128,11 @@ public class NumberData {
 		mRate = 0.0;
 
 		for (int i = 0; i < Source.COUNT; i++) {
-			mRate += mSources.get(i)
-					.getRate();
+			Source s = mSources.get(i);
+
+			if(s.isUnlocked()){
+				mRate += s.getRate();
+			}
 		}
 	}
 

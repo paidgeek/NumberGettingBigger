@@ -12,10 +12,12 @@ import android.support.v4.content.WakefulBroadcastReceiver;
 
 import com.moybl.topnumber.backend.TopNumberClient;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AlarmController extends WakefulBroadcastReceiver {
 
+	private static final long NOTIFICATION_SETUP_DELAY = /*5 * 60 * 1000*/1000;
 	public static final String KEY_REQUEST_CODE = "request_code";
 	public static final String KEY_PLAYER_ID = "player_id";
 	public static final int SETUP_NOTIFICATION = 1;
@@ -34,41 +36,65 @@ public class AlarmController extends WakefulBroadcastReceiver {
 	}
 
 	private void scheduleSetup(Context context, Intent intent) {
-		//String playerId = intent.getStringExtra(KEY_PLAYER_ID);
-		//long notifyTime = calculateNotifyTime(context, playerId);
+		String playerId = intent.getStringExtra(KEY_PLAYER_ID);
+		long notifyTime = calculateNotifyTime(context, playerId);
 
-		// rate * seconds = lastCost - number
-		// seconds = (lastCost - number) / rate
+		if(notifyTime < 0) {
+			return;
+		}
 
 		Intent service = new Intent(context, AlarmController.class);
 		service.putExtra(AlarmController.KEY_REQUEST_CODE, AlarmController.SETUP_NOTIFICATION);
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, AlarmController.SETUP_NOTIFICATION, service, 0);
 
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-		alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 10000, pendingIntent);
+		alarmManager.set(AlarmManager.RTC_WAKEUP, notifyTime, pendingIntent);
 
 		startWakefulService(context, service);
 	}
 
-	private long calculateNotifyTime(Context context, String playerId){
+	private long calculateNotifyTime(Context context, String playerId) {
 		Prefs.load(context, playerId);
-		NumberData numberData = NumberData.getInstance();
-		numberData.load();
 
-		List<Source> sources = numberData.getSources();
-		double rate = numberData.getRate();
-		double lastCost = 0.0;
+		double rate = 0.0;
+		double lastCost = -1.0;
 
-		for (int i = 0; i < sources.size(); i++) {
-			Source s = sources.get(i);
+		for (int i = 0; i < Source.COUNT; i++) {
+			int level = Prefs.getInt(NumberData.KEY_SOURCE_LEVEL + i, i == 0 ? 1 : 0);
+			boolean unlocked = Prefs.getBoolean(NumberData.KEY_SOURCE_UNLOCKED + i, i == 0);
 
-			if (!s.isUnlocked()) {
+			if (i == 0) {
+				if (level == 0) {
+					level = 1;
+				}
+				unlocked = true;
+			}
+
+			Source s = new Source(i, unlocked, level);
+
+			if (unlocked) {
+				rate += s.getRate();
+			}
+
+			if (!unlocked && lastCost < 0.0) {
+				s.setLevel(1);
 				lastCost = s.getCost();
-				break;
 			}
 		}
 
-		return System.currentTimeMillis() + (long) Math.ceil(((lastCost - numberData.getNumber()) / rate) * 1000.0);
+		if (lastCost < 0.0) {
+			return -1;
+		}
+
+		double number = Prefs.getDouble(NumberData.KEY_NUMBER, 0.0);
+
+		if (number >= lastCost) {
+			return System.currentTimeMillis() + 1000;
+		}
+
+		double missing = lastCost - number;
+
+		return System.currentTimeMillis() + (long) Math.ceil((missing / rate) * 1000.0);
 	}
 
 	private void setupNotification(Context context, Intent intent) {
@@ -76,7 +102,7 @@ public class AlarmController extends WakefulBroadcastReceiver {
 
 		NotificationCompat.Builder mBuilder =
 				new NotificationCompat.Builder(context)
-						.setSmallIcon(R.drawable.logo)
+						.setSmallIcon(R.drawable.icon)
 						.setContentTitle(context.getResources()
 								.getString(R.string.app_name))
 						.setContentText(context.getResources()
@@ -107,7 +133,7 @@ public class AlarmController extends WakefulBroadcastReceiver {
 		PendingIntent pendingIntent = createScheduleSetupIntent(context);
 
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-		alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 3000, pendingIntent);
+		alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + NOTIFICATION_SETUP_DELAY, pendingIntent);
 	}
 
 	private static PendingIntent createScheduleSetupIntent(Context context) {

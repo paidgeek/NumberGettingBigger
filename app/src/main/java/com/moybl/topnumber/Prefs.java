@@ -19,6 +19,7 @@ public class Prefs {
 		Log.d("PREFS", sValues.toString());
 
 		try {
+			sContext.deleteFile(FILE_NAME + sPlayerId);
 			OutputStream os = sContext.openFileOutput(FILE_NAME + sPlayerId, Context.MODE_PRIVATE);
 			os.write(sValues.toString()
 					.getBytes());

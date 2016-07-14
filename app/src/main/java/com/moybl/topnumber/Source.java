@@ -40,7 +40,7 @@ public class Source {
 	}
 
 	public double getBaseRate() {
-		return NumberUtil.prettyNumber(Math.pow(3, mIndex));
+		return NumberUtil.prettyNumber(Math.pow(4.0, mIndex));
 	}
 
 	public double getRate() {
