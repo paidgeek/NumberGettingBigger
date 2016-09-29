@@ -13,35 +13,35 @@ import java.util.List;
 
 public class PlayersAdapter extends RecyclerView.Adapter<PlayerLeaderboardViewModel> {
 
-	private List<Player> mPlayers;
-	private LayoutInflater mInflater;
+  private List<Player> mPlayers;
+  private LayoutInflater mInflater;
 
-	public PlayersAdapter(Context context) {
-		mPlayers = new ArrayList<>();
-		mInflater = LayoutInflater.from(context);
-	}
+  public PlayersAdapter(Context context) {
+    mPlayers = new ArrayList<>();
+    mInflater = LayoutInflater.from(context);
+  }
 
-	public List<Player> getPlayers() {
-		return mPlayers;
-	}
+  public List<Player> getPlayers() {
+    return mPlayers;
+  }
 
-	@Override
-	public PlayerLeaderboardViewModel onCreateViewHolder(ViewGroup parent, int viewType) {
-		View v = mInflater.inflate(R.layout.item_player_number, parent, false);
+  @Override
+  public PlayerLeaderboardViewModel onCreateViewHolder(ViewGroup parent, int viewType) {
+    View v = mInflater.inflate(R.layout.item_player_number, parent, false);
 
-		return new PlayerLeaderboardViewModel(v);
-	}
+    return new PlayerLeaderboardViewModel(v);
+  }
 
-	@Override
-	public void onBindViewHolder(PlayerLeaderboardViewModel holder, int position) {
-		Player player = mPlayers.get(position);
+  @Override
+  public void onBindViewHolder(PlayerLeaderboardViewModel holder, int position) {
+    Player player = mPlayers.get(position);
 
-		holder.setPlayer(player, position);
-	}
+    holder.setPlayer(player, position);
+  }
 
-	@Override
-	public int getItemCount() {
-		return mPlayers.size();
-	}
+  @Override
+  public int getItemCount() {
+    return mPlayers.size();
+  }
 
 }

@@ -10,105 +10,105 @@ import java.io.OutputStream;
 
 public class Prefs {
 
-	private static final String FILE_NAME = "prefs";
-	private static JSONObject sValues;
-	private static Context sContext;
-	private static String sPlayerId;
+  private static final String FILE_NAME = "prefs";
+  private static JSONObject sValues;
+  private static Context sContext;
+  private static String sPlayerId;
 
-	public static void save() {
-		Log.d("PREFS", sValues.toString());
+  public static void save() {
+    Log.d("PREFS", sValues.toString());
 
-		try {
-			sContext.deleteFile(FILE_NAME + sPlayerId);
-			OutputStream os = sContext.openFileOutput(FILE_NAME + sPlayerId, Context.MODE_PRIVATE);
-			os.write(sValues.toString()
-					.getBytes());
-			os.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    try {
+      sContext.deleteFile(FILE_NAME + sPlayerId);
+      OutputStream os = sContext.openFileOutput(FILE_NAME + sPlayerId, Context.MODE_PRIVATE);
+      os.write(sValues.toString()
+          .getBytes());
+      os.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 
-	public static void remove(String key) {
-		sValues.remove(key);
-	}
+  public static void remove(String key) {
+    sValues.remove(key);
+  }
 
-	public static void removeAll() {
-		sValues = new JSONObject();
-	}
+  public static void removeAll() {
+    sValues = new JSONObject();
+  }
 
-	public static void load(Context context, String playerId) {
-		sContext = context;
-		sPlayerId = playerId;
+  public static void load(Context context, String playerId) {
+    sContext = context;
+    sPlayerId = playerId;
 
-		try {
-			InputStream is = sContext.openFileInput(FILE_NAME + sPlayerId);
-			byte[] buf = new byte[is.available()];
-			is.read(buf);
-			is.close();
+    try {
+      InputStream is = sContext.openFileInput(FILE_NAME + sPlayerId);
+      byte[] buf = new byte[is.available()];
+      is.read(buf);
+      is.close();
 
-			sValues = new JSONObject(new String(buf));
-		} catch (Exception e) {
-			sValues = new JSONObject();
-		}
+      sValues = new JSONObject(new String(buf));
+    } catch (Exception e) {
+      sValues = new JSONObject();
+    }
 
-		Log.d("PREFS", sValues.toString());
-	}
+    Log.d("PREFS", sValues.toString());
+  }
 
-	private static Object getObject(String key, Object defValue) {
-		if (sValues.has(key)) {
-			return sValues.opt(key);
-		} else {
-			return defValue;
-		}
-	}
+  private static Object getObject(String key, Object defValue) {
+    if (sValues.has(key)) {
+      return sValues.opt(key);
+    } else {
+      return defValue;
+    }
+  }
 
-	private static void put(String key, Object value) {
-		try {
-			sValues.putOpt(key, value);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+  private static void put(String key, Object value) {
+    try {
+      sValues.putOpt(key, value);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 
-	public static String getString(String key, String defValue) {
-		return (String) getObject(key, defValue);
-	}
+  public static String getString(String key, String defValue) {
+    return (String) getObject(key, defValue);
+  }
 
-	public static void setString(String key, String value) {
-		put(key, value);
-	}
+  public static void setString(String key, String value) {
+    put(key, value);
+  }
 
-	public static int getInt(String key, int defValue) {
-		return (Integer) getObject(key, defValue);
-	}
+  public static int getInt(String key, int defValue) {
+    return (Integer) getObject(key, defValue);
+  }
 
-	public static void setInt(String key, int value) {
-		put(key, value);
-	}
+  public static void setInt(String key, int value) {
+    put(key, value);
+  }
 
-	public static long getLong(String key, long defValue) {
-		return (Long) getObject(key, defValue);
-	}
+  public static long getLong(String key, long defValue) {
+    return (Long) getObject(key, defValue);
+  }
 
-	public static void setLong(String key, long value) {
-		put(key, value);
-	}
+  public static void setLong(String key, long value) {
+    put(key, value);
+  }
 
-	public static double getDouble(String key, double defValue) {
-		return (Double) getObject(key, defValue);
-	}
+  public static double getDouble(String key, double defValue) {
+    return (Double) getObject(key, defValue);
+  }
 
-	public static void setDouble(String key, double value) {
-		put(key, value);
-	}
+  public static void setDouble(String key, double value) {
+    put(key, value);
+  }
 
-	public static boolean getBoolean(String key, boolean defValue) {
-		return (Boolean) getObject(key, defValue);
-	}
+  public static boolean getBoolean(String key, boolean defValue) {
+    return (Boolean) getObject(key, defValue);
+  }
 
-	public static void setBoolean(String key, boolean value) {
-		put(key, value);
-	}
+  public static void setBoolean(String key, boolean value) {
+    put(key, value);
+  }
 
 }

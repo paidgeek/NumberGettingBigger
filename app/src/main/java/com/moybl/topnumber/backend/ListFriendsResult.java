@@ -6,25 +6,25 @@ import java.util.List;
 
 public class ListFriendsResult implements Result {
 
-	private boolean mSuccess;
-	private List<Player> mFriends;
+  private boolean mSuccess;
+  private List<Player> mFriends;
 
-	public ListFriendsResult() {
-		mSuccess = false;
-	}
+  public ListFriendsResult() {
+    mSuccess = false;
+  }
 
-	public ListFriendsResult(List<Player> friends) {
-		mSuccess = true;
-		mFriends = friends;
-	}
+  public ListFriendsResult(List<Player> friends) {
+    mSuccess = true;
+    mFriends = friends;
+  }
 
-	public List<Player> getFriends() {
-		return mFriends;
-	}
+  public List<Player> getFriends() {
+    return mFriends;
+  }
 
-	@Override
-	public boolean isSuccess() {
-		return mSuccess;
-	}
+  @Override
+  public boolean isSuccess() {
+    return mSuccess;
+  }
 
 }

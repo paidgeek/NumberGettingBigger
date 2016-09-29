@@ -21,89 +21,89 @@ import java.util.List;
 
 public class FriendsLeaderboardFragment extends Fragment {
 
-	private RecyclerView mFriendsRecycler;
-	private PlayersAdapter mFriendsAdapter;
-	private TopNumberClient mClient;
-	private LinearLayoutManager mLayoutManager;
+  private RecyclerView mFriendsRecycler;
+  private PlayersAdapter mFriendsAdapter;
+  private TopNumberClient mClient;
+  private LinearLayoutManager mLayoutManager;
 
-	@Override
-	public void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-	}
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+  }
 
-	private void load() {
-		final View loadingIndicator = LeaderboardActivity.getInstance()
-				.getLoadingIndicator();
-		loadingIndicator.setVisibility(View.VISIBLE);
+  private void load() {
+    final View loadingIndicator = LeaderboardActivity.getInstance()
+        .getLoadingIndicator();
+    loadingIndicator.setVisibility(View.VISIBLE);
 
-		mClient.listFriends(new ResultCallback<ListFriendsResult>() {
-			@Override
-			public void onResult(@NonNull ListFriendsResult result) {
-				loadingIndicator.setVisibility(View.GONE);
+    mClient.listFriends(new ResultCallback<ListFriendsResult>() {
+      @Override
+      public void onResult(@NonNull ListFriendsResult result) {
+        if (!result.isSuccess()) {
+          loadingIndicator.setVisibility(View.GONE);
+          return;
+        }
 
-				if (!result.isSuccess()) {
-					return;
-				}
+        List<Player> friends = result.getFriends();
+        friends.add(mClient.getPlayer());
+        Collections.sort(friends, new Comparator<Player>() {
+          @Override
+          public int compare(Player lhs, Player rhs) {
+            return rhs.getNumber().compareTo(lhs.getNumber());
+          }
+        });
 
-				List<Player> friends = result.getFriends();
-				friends.add(mClient.getPlayer());
-				Collections.sort(friends, new Comparator<Player>() {
-					@Override
-					public int compare(Player lhs, Player rhs) {
-						return rhs.getNumber().compareTo(lhs.getNumber());
-					}
-				});
+        mFriendsAdapter.getPlayers()
+            .clear();
+        mFriendsAdapter.getPlayers().addAll(friends);
+        mFriendsAdapter.notifyDataSetChanged();
+        loadingIndicator.setVisibility(View.GONE);
+      }
+    });
+  }
 
-				mFriendsAdapter.getPlayers()
-						.clear();
-				mFriendsAdapter.getPlayers().addAll(friends);
-				mFriendsAdapter.notifyDataSetChanged();
-			}
-		});
-	}
+  @Override
+  public void onStart() {
+    super.onStart();
 
-	@Override
-	public void onStart() {
-		super.onStart();
+    load();
+  }
 
-		load();
-	}
+  @Nullable
+  @Override
+  public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    View v = inflater.inflate(R.layout.fragment_friends_leaderboard, container, false);
+    mFriendsRecycler = (RecyclerView) v.findViewById(R.id.friends_recycler);
 
-	@Nullable
-	@Override
-	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		View v = inflater.inflate(R.layout.fragment_friends_leaderboard, container, false);
-		mFriendsRecycler = (RecyclerView) v.findViewById(R.id.friends_recycler);
+    mLayoutManager = new LinearLayoutManager(getActivity());
+    mFriendsAdapter = new PlayersAdapter(getActivity());
 
-		mLayoutManager = new LinearLayoutManager(getActivity());
-		mFriendsAdapter = new PlayersAdapter(getActivity());
+    mFriendsRecycler.setLayoutManager(mLayoutManager);
+    mFriendsRecycler.addItemDecoration(new VerticalSpaceItemDecoration(10));
+    mFriendsRecycler.setAdapter(mFriendsAdapter);
+    mFriendsRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
+      @Override
+      public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+        super.onScrollStateChanged(recyclerView, newState);
+      }
 
-		mFriendsRecycler.setLayoutManager(mLayoutManager);
-		mFriendsRecycler.addItemDecoration(new VerticalSpaceItemDecoration(10));
-		mFriendsRecycler.setAdapter(mFriendsAdapter);
-		mFriendsRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
-			@Override
-			public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-				super.onScrollStateChanged(recyclerView, newState);
-			}
+      @Override
+      public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+        if (dy > 0) {
+          int childCount = mLayoutManager.getChildCount();
+          int totalCount = mLayoutManager.getItemCount();
+          int firstVisible = mLayoutManager.findFirstVisibleItemPosition();
 
-			@Override
-			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-				if (dy > 0) {
-					int childCount = mLayoutManager.getChildCount();
-					int totalCount = mLayoutManager.getItemCount();
-					int firstVisible = mLayoutManager.findFirstVisibleItemPosition();
+          if ((childCount + firstVisible) >= totalCount) {
+            load();
+          }
+        }
+      }
+    });
 
-					if ((childCount + firstVisible) >= totalCount) {
-						load();
-					}
-				}
-			}
-		});
+    mClient = TopNumberClient.getInstance();
 
-		mClient = TopNumberClient.getInstance();
-
-		return v;
-	}
+    return v;
+  }
 
 }

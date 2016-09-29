@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:name=".TopNumberApplication"
@@ -46,13 +47,6 @@
             android:authorities="com.facebook.app.FacebookContentProvider1234"
             android:exported="true" />
 
-        <activity android:name="com.applovin.adview.AppLovinInterstitialActivity" />
-        <activity android:name="com.applovin.adview.AppLovinConfirmationActivity" />
-
-        <meta-data
-            android:name="applovin.sdk.key"
-            android:value="Tl9FIm0HaEhRXNqn93vUw2_90Bm4t6oPsyf8ifQHu6kQUTBdb57W86g9HQE8W1TNzDVgtxym1gAVDM8qRFKaL_" />
-
         <receiver
             android:name=".AlarmController"
             android:process=":remote" />
@@ -67,6 +61,66 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.moybl.topnumber.MainActivity" />
         </activity>
+
+        <!-- AdTapsy START -->
+
+        <!-- InMobi Activities -->
+        <activity
+                android:name="com.inmobi.rendering.InMobiAdActivity"
+                android:configChanges="keyboardHidden|orientation|keyboard|smallestScreenSize|screenSize"
+                android:hardwareAccelerated="true"
+                android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <receiver
+                android:name="com.inmobi.commons.core.utilities.uid.ImIdShareBroadCastReceiver"
+                android:enabled="true"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="com.inmobi.share.id" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Chartboost -->
+        <activity android:name="com.chartboost.sdk.CBImpressionActivity"
+                  android:excludeFromRecents="true" android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"
+                  android:configChanges="keyboardHidden|orientation|screenSize"/>
+
+        <!-- AdColony Activities -->
+        <activity
+                android:name="com.jirbo.adcolony.AdColonyOverlay"
+                android:configChanges="keyboardHidden|orientation|screenSize"
+                android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
+        <activity
+                android:name="com.jirbo.adcolony.AdColonyFullscreen"
+                android:configChanges="keyboardHidden|orientation|screenSize"
+                android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
+        <activity
+                android:name="com.jirbo.adcolony.AdColonyBrowser"
+                android:configChanges="keyboardHidden|orientation|screenSize"
+                android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
+        <!-- Applovin Activities -->
+        <activity android:name="com.applovin.adview.AppLovinInterstitialActivity" />
+        <activity android:name="com.applovin.adview.AppLovinConfirmationActivity" />
+
+        <!-- AdMob -->
+        <activity
+                android:name="com.google.android.gms.ads.AdActivity"
+                android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+                android:theme="@android:style/Theme.Translucent" />
+
+        <!-- Vungle -->
+        <activity
+                android:name="com.vungle.publisher.FullScreenAdActivity"
+                android:configChanges="keyboardHidden|orientation|screenSize"
+                android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+
+        <!-- RevMob -->
+        <activity
+                android:name="com.revmob.FullscreenActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:theme="@android:style/Theme.Translucent" />
+
+        <!-- AdTapsy END -->
 
         <meta-data
             android:name="com.google.android.gms.version"

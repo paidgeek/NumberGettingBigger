@@ -23,10 +23,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.applovin.adview.AppLovinIncentivizedInterstitial;
-import com.applovin.sdk.AppLovinAd;
-import com.applovin.sdk.AppLovinAdLoadListener;
-import com.applovin.sdk.AppLovinAdRewardListener;
+import com.adtapsy.sdk.AdTapsy;
+import com.adtapsy.sdk.AdTapsyDelegate;
+import com.adtapsy.sdk.AdTapsyRewardedDelegate;
 import com.moybl.topnumber.backend.ResultCallback;
 import com.moybl.topnumber.backend.TopNumberClient;
 import com.moybl.topnumber.backend.VoidResult;
@@ -44,328 +43,327 @@ import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
 
-	private static final long VIDEO_AD_PRELOAD_DELAY = 20000;
-	private static final long NAME_CHANGE_TIME_LIMIT = 24 * 60 * 1000;
+  private static final long NAME_CHANGE_TIME_LIMIT = 24 * 60 * 1000;
 
-	private static MainActivity sInstance;
+  private static MainActivity sInstance;
 
-	public static MainActivity getInstance() {
-		return sInstance;
-	}
+  public static MainActivity getInstance() {
+    return sInstance;
+  }
 
-	@BindView(R.id.ad_banner_bottom)
-	AdView mAdView;
-	@BindView(R.id.tv_number)
-	TextView mNumberTextView;
-	@BindView(R.id.tv_number_name)
-	TextView mNumberNameTextView;
-	@BindView(R.id.list_sources)
-	LinearLayout mSourcesList;
-	@BindView(R.id.tv_rate)
-	TextView mRateTextView;
-	@BindView(R.id.btn_video_ad)
-	View mVideoAdButton;
-	@BindView(R.id.video_ad_layout)
-	View mVideoAdLayout;
+  @BindView(R.id.ad_banner_bottom)
+  AdView mAdView;
+  @BindView(R.id.tv_number)
+  TextView mNumberTextView;
+  @BindView(R.id.tv_number_name)
+  TextView mNumberNameTextView;
+  @BindView(R.id.list_sources)
+  LinearLayout mSourcesList;
+  @BindView(R.id.tv_rate)
+  TextView mRateTextView;
+  @BindView(R.id.btn_video_ad)
+  View mVideoAdButton;
+  @BindView(R.id.video_ad_layout)
+  View mVideoAdLayout;
 
-	private TopNumberClient mClient;
-	private NumberData mNumberData;
-	private List<SourceView> mSourceViews;
-	private boolean mUpdateRunning;
-	private AppLovinIncentivizedInterstitial mIncentivizedInterstitial;
-	private boolean mSwitched;
+  private TopNumberClient mClient;
+  private NumberData mNumberData;
+  private List<SourceView> mSourceViews;
+  private boolean mUpdateRunning;
+  private boolean mSwitched;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    sInstance = this;
 
-		sInstance = this;
+    AdTapsy.startSession(this, "57ecfbcbe4b040129786a116");
+    AdTapsy.setRewardedVideoPrePopupEnabled(false);
+    AdTapsy.setRewardedVideoPostPopupEnabled(false);
 
-		setContentView(R.layout.activity_main);
-		ButterKnife.bind(this);
+    AdTapsy.onCreate(this);
+    setContentView(R.layout.activity_main);
+    ButterKnife.bind(this);
 
-		mClient = TopNumberClient.getInstance();
-		mClient.setContext(this);
+    mClient = TopNumberClient.getInstance();
+    mClient.setContext(this);
 
-		if (mClient.getPlayer() == null) {
-			finish();
-			return;
-		}
+    if (mClient.getPlayer() == null) {
+      finish();
+      return;
+    }
 
-		Prefs.load(getApplicationContext(), mClient.getPlayer()
-				.getId());
-		NumberUtil.setContext(this);
-		mNumberData = NumberData.getInstance();
-		mNumberData.load();
+    Prefs.load(getApplicationContext(), mClient.getPlayer()
+        .getId());
+    NumberUtil.setContext(this);
+    mNumberData = NumberData.getInstance();
+    mNumberData.load();
 
-		LayoutInflater inflater = LayoutInflater.from(this);
-		mSourceViews = new ArrayList<>();
-		for (int i = 0; i < Source.COUNT; i++) {
-			Source source = mNumberData.getSources()
-					.get(i);
+    LayoutInflater inflater = LayoutInflater.from(this);
+    mSourceViews = new ArrayList<>();
+    for (int i = 0; i < Source.COUNT; i++) {
+      Source source = mNumberData.getSources()
+          .get(i);
 
-			View view = inflater.inflate(R.layout.item_source, mSourcesList, false);
-			SourceView sourceView = new SourceView(view);
-			sourceView.setSource(source);
-			sourceView.update();
+      View view = inflater.inflate(R.layout.item_source, mSourcesList, false);
+      SourceView sourceView = new SourceView(view);
+      sourceView.setSource(source);
+      sourceView.update();
 
-			float h = (((1.0f + (float) Math.sqrt(5)) * 5.0f) * i) % 360.0f;
-			float s = Math.min(0.6f, i / (Source.COUNT * 0.4f));
-			view.setBackgroundColor(Color.HSVToColor(new float[]{h, s, 0.6f}));
+      float h = (((1.0f + (float) Math.sqrt(5)) * 5.0f) * i) % 360.0f;
+      float s = Math.min(0.6f, i / (Source.COUNT * 0.4f));
+      view.setBackgroundColor(Color.HSVToColor(new float[]{h, s, 0.6f}));
 
-			mSourcesList.addView(view);
-			mSourceViews.add(sourceView);
-		}
+      mSourcesList.addView(view);
+      mSourceViews.add(sourceView);
+    }
 
-		Animation a = AnimationUtils.loadAnimation(this, R.anim.wiggle);
-		mVideoAdButton.startAnimation(a);
+    Animation a = AnimationUtils.loadAnimation(this, R.anim.wiggle);
+    mVideoAdButton.startAnimation(a);
 
-		AppRater.app_launched(this);
-		AppRater.setDarkTheme();
+    AppRater.app_launched(this);
+    AppRater.setDarkTheme();
 
-		mIncentivizedInterstitial = AppLovinIncentivizedInterstitial.create(this);
-	}
+    AdTapsy.setDelegate(new AdTapsyDelegate() {
+      @Override
+      public void onAdShown(int i) {
+      }
 
-	@Override
-	protected void onStop() {
-		super.onStop();
+      @Override
+      public void onAdSkipped(int i) {
+      }
 
-		mUpdateRunning = false;
+      @Override
+      public void onAdClicked(int i) {
+      }
 
-		if (!mSwitched) {
-			AlarmController.scheduleNotificationSetup(getApplicationContext());
-		}
-		mSwitched = false;
-	}
+      @Override
+      public void onAdFailToShow(int i) {
+      }
 
-	@Override
-	protected void onPause() {
-		super.onPause();
+      @Override
+      public void onAdCached(int zoneId) {
+        if(zoneId == AdTapsy.REWARDED_VIDEO_ZONE) {
+          mVideoAdLayout.setVisibility(View.VISIBLE);
+        }
+      }
+    });
+  }
 
-		mNumberData.save();
-		mAdView.destroy();
-	}
+  @Override
+  protected void onStop() {
+    super.onStop();
+    AdTapsy.onStop(this);
 
-	@Override
-	protected void onStart() {
-		super.onStart();
+    mUpdateRunning = false;
 
-		update();
+    if (!mSwitched) {
+      AlarmController.scheduleNotificationSetup(getApplicationContext());
+    }
+    mSwitched = false;
+  }
 
-		mUpdateRunning = true;
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while (mUpdateRunning) {
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							update();
-						}
-					});
-					try {
-						Thread.sleep(30);
-					} catch (InterruptedException e) {
-					}
-				}
-			}
-		}).start();
+  @Override
+  protected void onPause() {
+    super.onPause();
+    AdTapsy.onPause(this);
 
-		loadVideoAd();
+    mNumberData.save();
+    mAdView.destroy();
+  }
 
-		AlarmController.cancelNotificationSetup(getApplicationContext());
-	}
+  @Override
+  protected void onStart() {
+    super.onStart();
+    AdTapsy.onStart(this);
 
-	@OnClick(R.id.btn_video_ad)
-	void onVideoAdClick() {
-		showVideoAd();
-	}
+    update();
 
-	private void loadVideoAd() {
-		mVideoAdLayout.setVisibility(View.GONE);
+    mUpdateRunning = true;
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        while (mUpdateRunning) {
+          runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              update();
+            }
+          });
+          try {
+            Thread.sleep(30);
+          } catch (InterruptedException e) {
+          }
+        }
+      }
+    }).start();
 
-		mIncentivizedInterstitial.preload(new AppLovinAdLoadListener() {
-			@Override
-			public void adReceived(AppLovinAd appLovinAd) {
-				Log.d("AppLovin", "adReceived");
-				mVideoAdLayout.setVisibility(View.VISIBLE);
-			}
+    AlarmController.cancelNotificationSetup(getApplicationContext());
+  }
 
-			@Override
-			public void failedToReceiveAd(int i) {
-				Log.d("AppLovin", "failedToReceiveAd");
+  @OnClick(R.id.btn_video_ad)
+  void onVideoAdClick() {
+    showVideoAd();
+  }
 
-				final Handler h = new Handler();
-				h.postDelayed(new Runnable() {
-					@Override
-					public void run() {
-						loadVideoAd();
-					}
-				}, VIDEO_AD_PRELOAD_DELAY);
-			}
-		});
-	}
+  private void showVideoAd() {
+    if(AdTapsy.isRewardedVideoReadyToShow()) {
+      AdTapsy.setRewardedDelegate(new AdTapsyRewardedDelegate() {
+        @Override
+        public void onRewardEarned(int i) {
+          Log.d("REWARD", "rewarded");
 
-	private void showVideoAd() {
-		if (mIncentivizedInterstitial.isAdReadyToDisplay()) {
-			mIncentivizedInterstitial.show(this, new AppLovinAdRewardListener() {
-				@Override
-				public void userRewardVerified(AppLovinAd appLovinAd, Map map) {
-					Log.d("REWARD", "rewarded");
+          Player p = mClient.getPlayer();
+          p.setNumber(p.getNumber() * 2.0);
+        }
+      });
 
-					Player p = mClient.getPlayer();
-					p.setNumber(p.getNumber() * 2.0);
-				}
+      AdTapsy.showRewardedVideo(this);
+      mVideoAdLayout.setVisibility(View.GONE);
+    }
+  }
 
-				@Override
-				public void userOverQuota(AppLovinAd appLovinAd, Map map) {
-				}
+  @Override
+  protected void onResume() {
+    super.onResume();
+    AdTapsy.onResume(this);
 
-				@Override
-				public void userRewardRejected(AppLovinAd appLovinAd, Map map) {
-				}
+    AdRequest adRequest = new AdRequest.Builder().build();
+    mAdView.loadAd(adRequest);
+  }
 
-				@Override
-				public void validationRequestFailed(AppLovinAd appLovinAd, int i) {
-				}
+  public void update() {
+    mNumberData.update();
+    for (int i = 0; i < mSourceViews.size(); i++) {
+      SourceView sourceView = mSourceViews.get(i);
+      sourceView.update();
+    }
+    double number = mNumberData.getNumber();
 
-				@Override
-				public void userDeclinedToViewAd(AppLovinAd appLovinAd) {
-				}
-			}, null, null);
+    mRateTextView.setText("+" + NumberUtil.formatNumber(mNumberData.getRate()) + "/s");
+    mNumberTextView.setText(NumberUtil.format(NumberUtil.firstDigits(number)));
 
-			mVideoAdLayout.setVisibility(View.GONE);
-		}
-	}
+    if (NumberUtil.powerOf(number) >= 3) {
+      Util.setVisible(mNumberNameTextView);
 
-	@Override
-	protected void onResume() {
-		super.onResume();
+      mNumberNameTextView.setText(NumberUtil.powerName(number));
+    } else {
+      Util.setGone(mNumberNameTextView);
+    }
+  }
 
-		AdRequest adRequest = new AdRequest.Builder().build();
-		mAdView.loadAd(adRequest);
-	}
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    MenuInflater inflater = getMenuInflater();
+    inflater.inflate(R.menu.main_menu, menu);
 
-	public void update() {
-		mNumberData.update();
-		for (int i = 0; i < mSourceViews.size(); i++) {
-			SourceView sourceView = mSourceViews.get(i);
-			sourceView.update();
-		}
-		double number = mNumberData.getNumber();
+    return true;
+  }
 
-		mRateTextView.setText("+" + NumberUtil.formatNumber(mNumberData.getRate()) + "/s");
-		mNumberTextView.setText(NumberUtil.format(NumberUtil.firstDigits(number)));
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    switch (item.getItemId()) {
+      case R.id.option_log_out:
+        onBackPressed();
+        return true;
+      case R.id.option_reset_progress:
+        onResetProgressClick();
+        return true;
+      case R.id.option_change_name:
+        onChangeNameClick();
+        break;
+    }
 
-		if (NumberUtil.powerOf(number) >= 3) {
-			Util.setVisible(mNumberNameTextView);
+    return super.onOptionsItemSelected(item);
+  }
 
-			mNumberNameTextView.setText(NumberUtil.powerName(number));
-		} else {
-			Util.setGone(mNumberNameTextView);
-		}
-	}
+  @Override
+  public void onBackPressed() {
+    mUpdateRunning = false;
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.main_menu, menu);
+    if (!AdTapsy.closeAd()) {
+      mClient.logOut();
+      mNumberData.save();
+      finish();
+    }
+  }
 
-		return true;
-	}
+  private void onResetProgressClick() {
+    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        switch (which) {
+          case DialogInterface.BUTTON_POSITIVE:
+            mClient.logOut();
+            mNumberData.clear();
+            finish();
+            break;
+          case DialogInterface.BUTTON_NEGATIVE:
+            break;
+        }
+      }
+    };
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.option_log_out:
-				onBackPressed();
-				return true;
-			case R.id.option_reset_progress:
-				onResetProgressClick();
-				return true;
-			case R.id.option_change_name:
-				onChangeNameClick();
-				break;
-		}
+    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    builder.setMessage(getString(R.string.reset_progress_dialog))
+        .setPositiveButton(getString(R.string.yes), dialogClickListener)
+        .setNegativeButton(getString(R.string.no), dialogClickListener)
+        .show();
+  }
 
-		return super.onOptionsItemSelected(item);
-	}
+  private void onChangeNameClick() {
+    if (System.currentTimeMillis() < mClient.getPlayer()
+        .getLastNameChangeAt()
+        .getValue() + NAME_CHANGE_TIME_LIMIT) {
+      AlertDialog.Builder builder = new AlertDialog.Builder(this);
+      builder.setMessage(getString(R.string.name_change_limit_message))
+          .setCancelable(false)
+          .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+            }
+          });
+      AlertDialog alert = builder.create();
+      alert.show();
 
-	@Override
-	public void onBackPressed() {
-		mClient.logOut();
-		mNumberData.save();
-		finish();
-	}
+      return;
+    }
 
-	private void onResetProgressClick() {
-		DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				switch (which) {
-					case DialogInterface.BUTTON_POSITIVE:
-						mClient.logOut();
-						mNumberData.clear();
-						finish();
-						break;
-					case DialogInterface.BUTTON_NEGATIVE:
-						break;
-				}
-			}
-		};
+    ChangeNameDialog d = new ChangeNameDialog();
+    d.setOnClickListener(new ChangeNameDialog.OnClickListener() {
+      @Override
+      public void onOkClick(String name) {
+        mClient.changeName(name, new ResultCallback<VoidResult>() {
+          @Override
+          public void onResult(@NonNull VoidResult result) {
+            if (!result.isSuccess()) {
+              Toast.makeText(getApplicationContext(), R.string.unable_to_change_name, Toast.LENGTH_LONG)
+                  .show();
+            }
+          }
+        });
+      }
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(getString(R.string.reset_progress_dialog))
-				.setPositiveButton(getString(R.string.yes), dialogClickListener)
-				.setNegativeButton(getString(R.string.no), dialogClickListener)
-				.show();
-	}
+      @Override
+      public void onCancelClick() {
+      }
+    });
+    d.show(getSupportFragmentManager(), "ChangeNameDialog");
+  }
 
-	private void onChangeNameClick() {
-		if (System.currentTimeMillis() < mClient.getPlayer()
-				.getLastNameChangeAt()
-				.getValue() + NAME_CHANGE_TIME_LIMIT) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage(getString(R.string.name_change_limit_message))
-					.setCancelable(false)
-					.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-						}
-					});
-			AlertDialog alert = builder.create();
-			alert.show();
+  @OnClick(R.id.btn_leaderboard)
+  void onLeaderboardClick() {
+    mSwitched = true;
+    mUpdateRunning = false;
 
-			return;
-		}
+    Intent intent = new Intent(this, LeaderboardActivity.class);
+    startActivity(intent);
+  }
 
-		ChangeNameDialog d = new ChangeNameDialog();
-		d.setOnClickListener(new ChangeNameDialog.OnClickListener() {
-			@Override
-			public void onOkClick(String name) {
-				mClient.changeName(name, new ResultCallback<VoidResult>() {
-					@Override
-					public void onResult(@NonNull VoidResult result) {
-						if (!result.isSuccess()) {
-							Toast.makeText(getApplicationContext(), R.string.unable_to_change_name, Toast.LENGTH_LONG)
-									.show();
-						}
-					}
-				});
-			}
-
-			@Override
-			public void onCancelClick() {
-			}
-		});
-		d.show(getSupportFragmentManager(), "ChangeNameDialog");
-	}
-
-	@OnClick(R.id.btn_leaderboard)
-	void onLeaderboardClick() {
-		mSwitched = true;
-
-		Intent intent = new Intent(this, LeaderboardActivity.class);
-		startActivity(intent);
-	}
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    mUpdateRunning = false;
+    AdTapsy.onDestroy(this);
+  }
 
 }

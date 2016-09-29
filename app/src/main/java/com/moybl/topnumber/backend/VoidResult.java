@@ -2,15 +2,15 @@ package com.moybl.topnumber.backend;
 
 public class VoidResult implements Result {
 
-	private boolean mIsSuccess;
+  private boolean mIsSuccess;
 
-	public VoidResult(boolean isSuccess) {
-		mIsSuccess = isSuccess;
-	}
+  public VoidResult(boolean isSuccess) {
+    mIsSuccess = isSuccess;
+  }
 
-	@Override
-	public boolean isSuccess() {
-		return mIsSuccess;
-	}
+  @Override
+  public boolean isSuccess() {
+    return mIsSuccess;
+  }
 
 }

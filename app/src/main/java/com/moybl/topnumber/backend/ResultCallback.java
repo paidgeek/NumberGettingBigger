@@ -4,6 +4,6 @@ import android.support.annotation.NonNull;
 
 public interface ResultCallback<T extends Result> {
 
-	void onResult(@NonNull T result);
+  void onResult(@NonNull T result);
 
 }

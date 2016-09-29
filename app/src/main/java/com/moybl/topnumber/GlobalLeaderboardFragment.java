@@ -16,81 +16,81 @@ import com.moybl.topnumber.backend.TopNumberClient;
 
 public class GlobalLeaderboardFragment extends Fragment {
 
-	private RecyclerView mPlayersRecycler;
-	private PlayersAdapter mPlayersAdapter;
-	private TopNumberClient mClient;
-	private String mNextPageToken;
-	private LinearLayoutManager mLayoutManager;
+  private RecyclerView mPlayersRecycler;
+  private PlayersAdapter mPlayersAdapter;
+  private TopNumberClient mClient;
+  private String mNextPageToken;
+  private LinearLayoutManager mLayoutManager;
 
-	@Override
-	public void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-	}
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+  }
 
-	private void loadNextPage() {
-		final View loadingIndicator = LeaderboardActivity.getInstance()
-				.getLoadingIndicator();
-		loadingIndicator.setVisibility(View.VISIBLE);
+  private void loadNextPage() {
+    final View loadingIndicator = LeaderboardActivity.getInstance()
+        .getLoadingIndicator();
+    loadingIndicator.setVisibility(View.VISIBLE);
 
-		mClient.listTop(mNextPageToken, new ResultCallback<ListTopResult>() {
-			@Override
-			public void onResult(@NonNull ListTopResult result) {
-				loadingIndicator.setVisibility(View.GONE);
+    mClient.listTop(mNextPageToken, new ResultCallback<ListTopResult>() {
+      @Override
+      public void onResult(@NonNull ListTopResult result) {
+        loadingIndicator.setVisibility(View.GONE);
 
-				if (!result.isSuccess()) {
-					return;
-				}
+        if (!result.isSuccess()) {
+          return;
+        }
 
-				mPlayersAdapter.getPlayers()
-						.addAll(result.getPlayers());
-				mPlayersAdapter.notifyDataSetChanged();
-				mNextPageToken = result.getNextPageToken();
-			}
-		});
-	}
+        mPlayersAdapter.getPlayers()
+            .addAll(result.getPlayers());
+        mPlayersAdapter.notifyDataSetChanged();
+        mNextPageToken = result.getNextPageToken();
+      }
+    });
+  }
 
-	@Override
-	public void onStart() {
-		super.onStart();
+  @Override
+  public void onStart() {
+    super.onStart();
 
-		loadNextPage();
-	}
+    loadNextPage();
+  }
 
-	@Nullable
-	@Override
-	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		View v = inflater.inflate(R.layout.fragment_global_leaderboard, container, false);
-		mPlayersRecycler = (RecyclerView) v.findViewById(R.id.players_recycler);
+  @Nullable
+  @Override
+  public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    View v = inflater.inflate(R.layout.fragment_global_leaderboard, container, false);
+    mPlayersRecycler = (RecyclerView) v.findViewById(R.id.players_recycler);
 
-		mLayoutManager = new LinearLayoutManager(getActivity());
-		mPlayersAdapter = new PlayersAdapter(getActivity());
+    mLayoutManager = new LinearLayoutManager(getActivity());
+    mPlayersAdapter = new PlayersAdapter(getActivity());
 
-		mPlayersRecycler.setLayoutManager(mLayoutManager);
-		mPlayersRecycler.addItemDecoration(new VerticalSpaceItemDecoration(10));
-		mPlayersRecycler.setAdapter(mPlayersAdapter);
-		mPlayersRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
-			@Override
-			public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-				super.onScrollStateChanged(recyclerView, newState);
-			}
+    mPlayersRecycler.setLayoutManager(mLayoutManager);
+    mPlayersRecycler.addItemDecoration(new VerticalSpaceItemDecoration(10));
+    mPlayersRecycler.setAdapter(mPlayersAdapter);
+    mPlayersRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
+      @Override
+      public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+        super.onScrollStateChanged(recyclerView, newState);
+      }
 
-			@Override
-			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-				if (dy > 0) {
-					int childCount = mLayoutManager.getChildCount();
-					int totalCount = mLayoutManager.getItemCount();
-					int firstVisible = mLayoutManager.findFirstVisibleItemPosition();
+      @Override
+      public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+        if (dy > 0) {
+          int childCount = mLayoutManager.getChildCount();
+          int totalCount = mLayoutManager.getItemCount();
+          int firstVisible = mLayoutManager.findFirstVisibleItemPosition();
 
-					if ((childCount + firstVisible) >= totalCount) {
-						loadNextPage();
-					}
-				}
-			}
-		});
+          if ((childCount + firstVisible) >= totalCount) {
+            loadNextPage();
+          }
+        }
+      }
+    });
 
-		mClient = TopNumberClient.getInstance();
+    mClient = TopNumberClient.getInstance();
 
-		return v;
-	}
+    return v;
+  }
 
 }
