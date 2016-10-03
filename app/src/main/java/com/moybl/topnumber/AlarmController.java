@@ -13,6 +13,8 @@ import android.support.v4.content.WakefulBroadcastReceiver;
 import com.moybl.topnumber.backend.TopNumberClient;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class AlarmController extends WakefulBroadcastReceiver {
@@ -93,8 +95,20 @@ public class AlarmController extends WakefulBroadcastReceiver {
     }
 
     double missing = lastCost - number;
+    long delay = (long) Math.ceil((missing / rate) * 1000.0);
+    long time = System.currentTimeMillis() + delay;
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTimeInMillis(time);
+    int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
 
-    return System.currentTimeMillis() + (long) Math.ceil((missing / rate) * 1000.0);
+    if (hourOfDay < 15 || hourOfDay > 21) {
+      calendar.add(Calendar.DAY_OF_MONTH, 1);
+      calendar.set(Calendar.HOUR_OF_DAY, 17);
+
+      time = calendar.getTimeInMillis();
+    }
+
+    return time;
   }
 
   private void setupNotification(Context context, Intent intent) {

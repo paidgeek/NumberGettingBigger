@@ -31,6 +31,7 @@ import com.moybl.topnumber.backend.ResultCallback;
 import com.moybl.topnumber.backend.TopNumberClient;
 import com.moybl.topnumber.backend.VoidResult;
 import com.moybl.topnumber.backend.topNumber.model.Player;
+import com.plattysoft.leonids.ParticleSystem;
 
 import org.codechimp.apprater.AppRater;
 
@@ -115,6 +116,14 @@ public class MainActivity extends AppCompatActivity {
         Log.d("REWARD", "rewarded");
         Player p = mClient.getPlayer();
         p.setNumber(p.getNumber() * 2.0);
+
+        ParticleSystem ps = new ParticleSystem(MainActivity.getInstance(), 200, R.drawable.particle, 1000)
+            .setSpeedRange(0.05f, 0.5f)
+            .setRotationSpeedRange(90.0f, 180.0f)
+            .setInitialRotationRange(0, 360)
+            .setScaleRange(0.5f, 1.5f)
+            .setFadeOut(2000);
+        ps.oneShot(findViewById(android.R.id.content), 200);
 
         delayedLoadVideoAd();
       }

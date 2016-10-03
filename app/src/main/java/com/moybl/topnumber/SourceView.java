@@ -13,6 +13,7 @@ public class SourceView {
   private View mView;
   private Source mSource;
   private TextView mLevelTextView;
+  private TextView mIndexTextView;
   private TextView mRateTextView;
   private Button mExchangeButton;
   private View mUnlockView;
@@ -22,6 +23,7 @@ public class SourceView {
   public SourceView(View view) {
     mView = view;
     mLevelTextView = (TextView) mView.findViewById(R.id.tv_source_level);
+    mIndexTextView = (TextView) mView.findViewById(R.id.tv_source_index);
     mRateTextView = (TextView) mView.findViewById(R.id.tv_source_rate);
     mExchangeButton = (Button) mView.findViewById(R.id.btn_source_exchange);
     mUnlockView = mView.findViewById(R.id.source_unlock);
@@ -106,7 +108,8 @@ public class SourceView {
     }
 
     if (mView.getVisibility() == View.VISIBLE) {
-      Util.setChangedText(mLevelTextView, NumberUtil.format(level));
+      Util.setChangedText(mIndexTextView, mSource.getIndex() + "");
+      Util.setChangedText(mLevelTextView, NumberUtil.format(level)+ "");
       Util.setChangedText(mRateTextView, "+" + NumberUtil.formatNumber(rate) + "/s");
       Util.setChangedText(mExchangeButton, "-" + NumberUtil.formatNumberWithNewLine(cost));
     }
