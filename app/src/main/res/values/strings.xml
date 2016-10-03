@@ -3,6 +3,7 @@
 	<string name="facebook_app_id">627321040769639</string>
 	<string name="api_url">https://top-number-4242.appspot.com/_ah/api</string>
 	<string name="banner_bottom_id">ca-app-pub-1215267734081435/6449030500</string>
+    <string name="rewarded_video_id">ca-app-pub-1215267734081435/1776750100</string>
 
 	<string name="log_out">Log out</string>
 	<string name="reset_progress">Reset progress</string>

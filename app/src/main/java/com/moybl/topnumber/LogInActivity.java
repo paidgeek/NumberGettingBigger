@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.applovin.sdk.AppLovinSdk;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookAuthorizationException;
@@ -44,6 +45,8 @@ public class LogInActivity extends Activity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_log_in);
     ButterKnife.bind(this);
+
+    AppLovinSdk.initializeSdk(getApplicationContext());
 
     mCallbackManager = CallbackManager.Factory.create();
     LoginManager.getInstance()

@@ -2,6 +2,10 @@ package com.moybl.topnumber;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.reward.RewardItem;
+import com.google.android.gms.ads.reward.RewardedVideoAd;
+import com.google.android.gms.ads.reward.RewardedVideoAdListener;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -23,9 +27,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.adtapsy.sdk.AdTapsy;
-import com.adtapsy.sdk.AdTapsyDelegate;
-import com.adtapsy.sdk.AdTapsyRewardedDelegate;
 import com.moybl.topnumber.backend.ResultCallback;
 import com.moybl.topnumber.backend.TopNumberClient;
 import com.moybl.topnumber.backend.VoidResult;
@@ -35,7 +36,6 @@ import org.codechimp.apprater.AppRater;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -44,6 +44,7 @@ import butterknife.OnClick;
 public class MainActivity extends AppCompatActivity {
 
   private static final long NAME_CHANGE_TIME_LIMIT = 24 * 60 * 1000;
+  private static final long VIDEO_AD_LOAD_DELAY = 30 * 1000;
 
   private static MainActivity sInstance;
 
@@ -65,25 +66,70 @@ public class MainActivity extends AppCompatActivity {
   View mVideoAdButton;
   @BindView(R.id.video_ad_layout)
   View mVideoAdLayout;
-
+  private RewardedVideoAd mVideoAd;
   private TopNumberClient mClient;
   private NumberData mNumberData;
   private List<SourceView> mSourceViews;
   private boolean mUpdateRunning;
   private boolean mSwitched;
+  private Handler mVideoAdLoadHandler;
+  private Runnable mVideoAdLoadRunnable;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     sInstance = this;
 
-    AdTapsy.startSession(this, "57ecfbcbe4b040129786a116");
-    AdTapsy.setRewardedVideoPrePopupEnabled(false);
-    AdTapsy.setRewardedVideoPostPopupEnabled(false);
-
-    AdTapsy.onCreate(this);
     setContentView(R.layout.activity_main);
     ButterKnife.bind(this);
+
+    mVideoAdLoadHandler = new Handler();
+    mVideoAdLoadRunnable = new Runnable() {
+      @Override
+      public void run() {
+        loadVideoAd();
+      }
+    };
+    mVideoAd = MobileAds.getRewardedVideoAdInstance(this);
+    mVideoAd.setRewardedVideoAdListener(new RewardedVideoAdListener() {
+      @Override
+      public void onRewardedVideoAdLoaded() {
+        mVideoAdLayout.setVisibility(View.VISIBLE);
+      }
+
+      @Override
+      public void onRewardedVideoAdOpened() {
+      }
+
+      @Override
+      public void onRewardedVideoStarted() {
+      }
+
+      @Override
+      public void onRewardedVideoAdClosed() {
+        delayedLoadVideoAd();
+      }
+
+      @Override
+      public void onRewarded(RewardItem rewardItem) {
+        Log.d("REWARD", "rewarded");
+        Player p = mClient.getPlayer();
+        p.setNumber(p.getNumber() * 2.0);
+
+        delayedLoadVideoAd();
+      }
+
+      @Override
+      public void onRewardedVideoAdLeftApplication() {
+      }
+
+      @Override
+      public void onRewardedVideoAdFailedToLoad(int i) {
+        delayedLoadVideoAd();
+      }
+    });
+    mVideoAdLayout.setVisibility(View.GONE);
+    loadVideoAd();
 
     mClient = TopNumberClient.getInstance();
     mClient.setContext(this);
@@ -123,37 +169,11 @@ public class MainActivity extends AppCompatActivity {
 
     AppRater.app_launched(this);
     AppRater.setDarkTheme();
-
-    AdTapsy.setDelegate(new AdTapsyDelegate() {
-      @Override
-      public void onAdShown(int i) {
-      }
-
-      @Override
-      public void onAdSkipped(int i) {
-      }
-
-      @Override
-      public void onAdClicked(int i) {
-      }
-
-      @Override
-      public void onAdFailToShow(int i) {
-      }
-
-      @Override
-      public void onAdCached(int zoneId) {
-        if(zoneId == AdTapsy.REWARDED_VIDEO_ZONE) {
-          mVideoAdLayout.setVisibility(View.VISIBLE);
-        }
-      }
-    });
   }
 
   @Override
   protected void onStop() {
     super.onStop();
-    AdTapsy.onStop(this);
 
     mUpdateRunning = false;
 
@@ -165,8 +185,8 @@ public class MainActivity extends AppCompatActivity {
 
   @Override
   protected void onPause() {
+    mVideoAd.pause(this);
     super.onPause();
-    AdTapsy.onPause(this);
 
     mNumberData.save();
     mAdView.destroy();
@@ -175,7 +195,6 @@ public class MainActivity extends AppCompatActivity {
   @Override
   protected void onStart() {
     super.onStart();
-    AdTapsy.onStart(this);
 
     update();
 
@@ -207,26 +226,27 @@ public class MainActivity extends AppCompatActivity {
   }
 
   private void showVideoAd() {
-    if(AdTapsy.isRewardedVideoReadyToShow()) {
-      AdTapsy.setRewardedDelegate(new AdTapsyRewardedDelegate() {
-        @Override
-        public void onRewardEarned(int i) {
-          Log.d("REWARD", "rewarded");
-
-          Player p = mClient.getPlayer();
-          p.setNumber(p.getNumber() * 2.0);
-        }
-      });
-
-      AdTapsy.showRewardedVideo(this);
+    if (mVideoAd.isLoaded()) {
       mVideoAdLayout.setVisibility(View.GONE);
+      mVideoAdLoadHandler.removeCallbacks(mVideoAdLoadRunnable);
+      mVideoAd.show();
     }
+  }
+
+  private void loadVideoAd() {
+    mVideoAdLayout.setVisibility(View.GONE);
+    mVideoAd.loadAd(getString(R.string.rewarded_video_id), new AdRequest.Builder().build());
+  }
+
+  private void delayedLoadVideoAd() {
+    mVideoAdLoadHandler.removeCallbacks(mVideoAdLoadRunnable);
+    mVideoAdLoadHandler.postDelayed(mVideoAdLoadRunnable, VIDEO_AD_LOAD_DELAY);
   }
 
   @Override
   protected void onResume() {
+    mVideoAd.resume(this);
     super.onResume();
-    AdTapsy.onResume(this);
 
     AdRequest adRequest = new AdRequest.Builder().build();
     mAdView.loadAd(adRequest);
@@ -281,11 +301,9 @@ public class MainActivity extends AppCompatActivity {
   public void onBackPressed() {
     mUpdateRunning = false;
 
-    if (!AdTapsy.closeAd()) {
-      mClient.logOut();
-      mNumberData.save();
-      finish();
-    }
+    mClient.logOut();
+    mNumberData.save();
+    finish();
   }
 
   private void onResetProgressClick() {
@@ -361,9 +379,9 @@ public class MainActivity extends AppCompatActivity {
 
   @Override
   protected void onDestroy() {
+    mVideoAd.destroy(this);
     super.onDestroy();
     mUpdateRunning = false;
-    AdTapsy.onDestroy(this);
   }
 
 }
